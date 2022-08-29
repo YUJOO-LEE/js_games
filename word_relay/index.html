@@ -40,16 +40,14 @@
           }else{
             $order.textContent = order + 1;
           }
-          $input.value = '';
-          $input.focus();
         }else{
           alert('틀렸습니다. 다시 입력하세요.');
-          $input.value = '';
         }
+        $input.value = '';
       }else{ //2글자 미만일때
         alert('2글자 이상 입력 해 주세요.');
-        $input.focus();
       }
+      $input.focus();
     }
     const onInput = (event) => {
       newWord = event.target.value;
