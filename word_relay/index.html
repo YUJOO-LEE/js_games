@@ -27,7 +27,7 @@
     let word; //기존 제시어
     let newWord; //새로 입력된 제시어
 
-    while (!number){
+    while (!number || number < 1){
       number = parseInt(prompt('정확한 인원 수를 입력 해 주세요. 몇 명이 참가하나요?'),10);
     }
     $people.textContent = number;
