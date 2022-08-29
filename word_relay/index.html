@@ -19,9 +19,9 @@
     }
     main {
       width: 100%;
-      height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
-      padding: 3% 10%;
+      padding: 3% 5%;
       border: 0.5rem solid lightgrey;
       box-sizing: border-box;
       display:flex;
@@ -41,16 +41,19 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-flow: column nowrap;
+      align-content: center;
+      flex-flow: column wrap;
     }
     .right #word{
       font-size: 3rem;
-      line-height: 20rem;
-      height: 20rem;
+      margin: 5rem 0;
     }
     .right input, .right button {
+      width: 80%;
       font-size: 2rem;
       padding: 0.5rem;
+      margin: 0.5rem 0;
+      box-sizing: border-box;
     }
     li{
       padding: 0.5rem;
@@ -70,7 +73,7 @@
       <p><span id="people"></span>명의 참가자가 게임을 진행중입니다.</p>
       <ul id="user">
         <li class="turn">
-          <i class="fa-solid fa-circle-arrow-right"></i> 
+          <i class="fa-solid fa-circle-arrow-right"></i>  
           <span>1</span>번째 참가자
         </li>
       </ul>
@@ -106,7 +109,7 @@
     $people.textContent = number;
 
     for (let i = 2 ; i <= number ; i++){
-      $user.innerHTML = $user.innerHTML + `<li><i class="fa-solid far fa-circle-dot"></i> <span>${i}</span>번째 참가자</li>`;
+      $user.innerHTML = $user.innerHTML + `<li><i class="fa-solid far fa-circle-dot"></i>  <span>${i}</span>번째 참가자</li>`;
     }
 
     const userListLi = document.querySelectorAll('#user li'); //li리스트 불러오기
