@@ -16,7 +16,7 @@
   <input type="text">
   <button>입력</button>
   <script>
-    const number = parseInt(prompt('몇 명이 참가하나요?'),10);
+    let number = parseInt(prompt('몇 명이 참가하나요?'),10);
     const $people = document.querySelector('#people');
     //alert(number);
     //const yesOrNo = confirm('맞나요?');
@@ -27,6 +27,9 @@
     let word; //기존 제시어
     let newWord; //새로 입력된 제시어
 
+    while (!number){
+      number = parseInt(prompt('정확한 인원 수를 입력 해 주세요. 몇 명이 참가하나요?'),10);
+    }
     $people.textContent = number;
 
     const onClickButton = () => {
