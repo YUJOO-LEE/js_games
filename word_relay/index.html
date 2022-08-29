@@ -30,40 +30,25 @@
     $people.textContent = number;
 
     const onClickButton = () => {
-      if (!word) { //제시어 유무 확인
-        //제시어 없음 (첫번째 입력)
-        word = newWord;
-        $word.textContent = word;
-        const order = parseInt($order.textContent, 10);
-        if (order === number) { //본인 차례와 총 인원수 비교
-          $order.textContent = 1;
-        }else{
-          $order.textContent = order + 1;
-        }
-        $input.value = '';
-        $input.focus();
-      }else{
-        //제시어 있음
-        if (newWord.length > 1) { //글자수 확인
-          if (word[word.length-1] === newWord[0]) { //끝말확인
-            word = newWord;
-            $word.textContent = word;
-            const order = parseInt($order.textContent, 10);
-            if (order === number) { //본인 차례와 총 인원수 비교
-              $order.textContent = 1;
-            }else{
-              $order.textContent = order + 1;
-            }
-          }else{ //끝말아님
-            alert('틀렸습니다. 다시 입력하세요.');
-            $input.value = '';
+      if (newWord.length > 1) { //글자수 확인
+        if (!word || word[word.length-1] === newWord[0]) { //입력 상황 판단 (제시어가 없거나 끝말이 맞을 때)
+          word = newWord;
+          $word.textContent = word;
+          const order = parseInt($order.textContent, 10);
+          if (order === number) { //본인 차례와 총 인원수 비교
+            $order.textContent = 1;
+          }else{
+            $order.textContent = order + 1;
           }
           $input.value = '';
           $input.focus();
-        }else{ //2글자 미만일때
-          alert('2글자 이상 입력 해 주세요.');
-          $input.focus();
+        }else{
+          alert('틀렸습니다. 다시 입력하세요.');
+          $input.value = '';
         }
+      }else{ //2글자 미만일때
+        alert('2글자 이상 입력 해 주세요.');
+        $input.focus();
       }
     }
     const onInput = (event) => {
