@@ -11,7 +11,7 @@
     a {text-decoration: none;}
     
     .box{
-        width: 200px;
+        width: 203px;
         max-width:100%;
         height: auto;
         margin: 0 auto;
@@ -22,21 +22,43 @@
         margin-top: 3rem;
     }
     #number {
+        border: 1px solid black;
+        box-sizing: border-box;
+        background-color: lightpink;
         font-size: 3rem;
+        line-height: 4rem;
+        vertical-align: bottom;
         text-align: right;
         word-break: break-all;
+        margin-bottom: 1px;
     }
     .bottom{
+        height: 203px;
         display: flex;
+        justify-content: space-between;
+        align-content: space-between;
         flex-wrap: wrap;
     }
     button{
+        border: 1px solid black;
+        box-sizing: border-box;
+        background-color: white;
         font-weight: bold;
         width: 50px;
         height: 50px;
     }
+    button:hover{
+        background-color: lightgray;
+    }
+    button:active{
+        border-color: darkgray;
+        background-color: lightgray;
+    }
+    .operator{
+        background-color: lightblue;
+    }
     .selected{
-        background-color: black;
+        background-color: black !important;
         color: white;
     }
     </style>
@@ -125,7 +147,7 @@
             if (!isNaN(targetInt)) {                                //버튼이 숫자인지 아닌지 확인
                 if (numberAfter === 0 || numberTmp === null) {      //앞 자리수 0이거나 연산자 눌러서 tmp 비웠을땐 새로입력
                     numberTmp = targetInt;
-                }else if (numberAfter < 10000000) {                 //총 자리수 7미만에만 숫자 추가
+                }else if (numberAfter < 1000000) {                 //총 자리수 7미만에만 숫자 추가
                     numberTmp = numberTmp * 10 + targetInt;
                 }
                 numberAfter = numberTmp;
