@@ -73,7 +73,7 @@
         const $number = document.querySelector('#number');
         const $button = document.querySelectorAll('button');
 
-        console.log($button);
+        //console.log($button);
 
         let numberBefore = 0;                                     //저장된 숫자
         let numberAfter = 0;                                      //화면에 표시될 숫자
@@ -146,7 +146,7 @@
                 operator = target;
                 event.target.classList.add('selected');             //현재 버튼 시각효과 추가
             }
-            console.log(numberBefore, numberAfter, numberTmp, operator, targetInt);
+            //console.log(numberBefore, numberAfter, numberTmp, operator, targetInt);
             $number.textContent = numberAfter;                      //계산기 상단에 출력
 
         }
