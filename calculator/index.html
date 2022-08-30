@@ -31,14 +31,25 @@
         flex-wrap: wrap;
     }
     button{
+        font-weight: bold;
         width: 50px;
         height: 50px;
+    }
+    .selected{
+        background-color: black;
+        color: white;
     }
     </style>
 </head>
 <body>
     <div class="box top">
         <p id="number">0</p>
+        <!-- 
+            출력되는 숫자의 길이가 늘어나면 
+            폰트 사이즈를 div width에 맞춰 예쁘게 줄어들게 하고 싶지만
+            하루종일 시도해보다가 못생기게 줄어들어서 포기함..
+            언젠가는.... 
+        -->
     </div>
     <div class="box bottom">
         <button class="btn_number">7</button>
@@ -64,13 +75,30 @@
 
         console.log($button);
 
-        let numberBefore = '0';
-        let numberAfter = '0';
-        let numberTmp;
-        let operator;
-        let target;
+        let numberBefore = '0';                                     //저장된 숫자
+        let numberAfter = '0';                                      //화면에 표시될 숫자
+        let numberTmp;                                              //표시되기 전 임시저장 숫자
+        let operator;                                               //저장된 연산자
+        let target;                                                 //현재 선택된 버튼
+        let $selected;                                              //선택된 버튼
 
-        const Calculate = (numberBefore, numberAfter, target) => {  //실제 계산하는 부분
+        const clear = (event) => {                                  //초기화가 반복되는 것 같아서 뺏는데 더 지저분한가...
+            switch (event) {
+                case 1 :
+                    numberAfter = 0;
+                case 2 :
+                    numberBefore = 0;
+                    operator = '';
+                case 3 : 
+                    numberTmp = 0;
+                    break;
+                case 4 :
+                    $selected = document.querySelector('.selected');
+                    $selected.classList.remove('selected');
+            }
+        }
+
+        const Calculate = (numberBefore, numberAfter, target) => {  //연산자 입력시 계산하는 부분
             if (target === '+') {
                 return numberBefore + numberAfter;
             }else if (target === '−'){
@@ -88,8 +116,13 @@
             //console.log(parseInt(event.target.textContent));
             let target = event.target.textContent;
             let targetInt = parseInt(target);
+            $selected = document.querySelector('.selected');
 
-            if (!isNaN(targetInt)) {                                //버튼이 숫자인지 아닌지
+            if (($selected && !operator) || target === '=') {
+                clear(4);                                           //기존에 선택된 버튼 시각효과 초기화
+            }
+
+            if (!isNaN(targetInt)) {                                //버튼이 숫자인지 아닌지 확인
                 if (numberAfter === '0' || numberTmp === 0) {        //앞 자리수 0이거나 연산자 눌러서 tmp 비웠을땐 새로입력
                     numberTmp = target;
                 }else if (numberAfter.length < 7) {                 //총 자리수 7미만에만 숫자 추가
@@ -97,25 +130,25 @@
                 }
                 numberAfter = numberTmp;
             }else if (target === 'C') {                             //C(초기화) 일경우
-                numberBefore = 0;
-                numberAfter = 0;
-                numberTmp = 0;
-                operator = '';
-            }else if (target === '=') {                             //= 일경우
+                clear(1);
+            }else if (target === '=') {                             //=(합계버튼) 일경우
                 numberAfter = Calculate(parseInt(numberBefore), parseInt(numberAfter), operator);
-                numberBefore = 0;
-                numberTmp = 0;
-                operator = '';
+                clear(2);
             }else{                                                  //그 외 연산자
                 if (numberTmp !== 0) {                              //숫자 입력값 있을때만 연산실행
                     numberAfter = Calculate(parseInt(numberBefore), parseInt(numberAfter), operator);
                 }
+                if ($selected) {
+                    clear(4);                                       //기존에 선택된 버튼 시각효과 초기화
+                }
+                clear(3);                                           //연산자 중복눌림 방지를 위해 tmp 숫자 초기화
                 numberBefore = numberAfter;
-                numberTmp = 0;                                      //연산자 중복눌림 방지를 위해 tmp 숫자 초기화
                 operator = target;
+                event.target.classList.add('selected');             //현재 버튼 시각효과 추가
             }
-            //console.log(numberBefore, numberAfter, numberTmp, operator);
+            //console.log(numberBefore, numberAfter, numberTmp, parseInt(operator));
             $number.textContent = numberAfter;                      //계산기 상단에 출력
+
         }
 
         for (let i = 0 ; i < $button.length ; i++) {                //모든 버튼에 event 부여
