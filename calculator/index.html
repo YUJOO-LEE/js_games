@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계산기</title>
+    <style>
+    * {margin: 0; padding: 0;}
+    li {list-style: none;}
+    a {text-decoration: none;}
+    
+    .box{
+        width: 200px;
+        max-width:100%;
+        height: auto;
+        margin: 0 auto;
+        box-sizing: border-box;
+        position: relative;
+    }
+    .top{
+        margin-top: 3rem;
+    }
+    #number {
+        font-size: 3rem;
+        text-align: right;
+        word-break: break-all;
+    }
+    .bottom{
+        display: flex;
+        flex-wrap: wrap;
+    }
+    button{
+        width: 50px;
+        height: 50px;
+    }
+    </style>
+</head>
+<body>
+    <div class="box top">
+        <p id="number">0</p>
+    </div>
+    <div class="box bottom">
+        <button class="btn_number">7</button>
+        <button class="btn_number">8</button>
+        <button class="btn_number">9</button>
+        <button class="operator">÷</button>
+        <button class="btn_number">4</button>
+        <button class="btn_number">5</button>
+        <button class="btn_number">6</button>
+        <button class="operator">×</button>
+        <button class="btn_number">1</button>
+        <button class="btn_number">2</button>
+        <button class="btn_number">3</button>
+        <button class="operator">−</button>
+        <button class="operator">C</button>
+        <button class="btn_number">0</button>
+        <button class="operator">=</button>
+        <button class="operator">+</button>
+    </div>
+    <script>
+        const $number = document.querySelector('#number');
+        const $button = document.querySelectorAll('button');
+
+        console.log($button);
+
+        let numberBefore = '0';
+        let numberAfter = '0';
+        let numberTmp;
+        let operator;
+        let target;
+
+        const Calculate = (numberBefore, numberAfter, target) => {  //실제 계산하는 부분
+            if (target === '+') {
+                return numberBefore + numberAfter;
+            }else if (target === '−'){
+                return numberBefore - numberAfter;
+            }else if (target === '×'){
+                return numberBefore * numberAfter;
+            }else if (target === '÷'){
+                return numberBefore / numberAfter;
+            }else{                                                  //입력된 연산자 없을경우
+                return numberAfter;
+            }
+        }
+
+        const onClickButton = (event) => {                          //버튼 event
+            //console.log(parseInt(event.target.textContent));
+            let target = event.target.textContent;
+            let targetInt = parseInt(target);
+
+            if (!isNaN(targetInt)) {                                //버튼이 숫자인지 아닌지
+                if (numberAfter === '0' || numberTmp === 0) {        //앞 자리수 0이거나 연산자 눌러서 tmp 비웠을땐 새로입력
+                    numberTmp = target;
+                }else if (numberAfter.length < 7) {                 //총 자리수 7미만에만 숫자 추가
+                    numberTmp = numberTmp + target;
+                }
+                numberAfter = numberTmp;
+            }else if (target === 'C') {                             //C(초기화) 일경우
+                numberBefore = 0;
+                numberAfter = 0;
+                numberTmp = 0;
+                operator = '';
+            }else if (target === '=') {                             //= 일경우
+                numberAfter = Calculate(parseInt(numberBefore), parseInt(numberAfter), operator);
+                numberBefore = 0;
+                numberTmp = 0;
+                operator = '';
+            }else{                                                  //그 외 연산자
+                if (numberTmp !== 0) {                              //숫자 입력값 있을때만 연산실행
+                    numberAfter = Calculate(parseInt(numberBefore), parseInt(numberAfter), operator);
+                }
+                numberBefore = numberAfter;
+                numberTmp = 0;                                      //연산자 중복눌림 방지를 위해 tmp 숫자 초기화
+                operator = target;
+            }
+            //console.log(numberBefore, numberAfter, numberTmp, operator);
+            $number.textContent = numberAfter;                      //계산기 상단에 출력
+        }
+
+        for (let i = 0 ; i < $button.length ; i++) {                //모든 버튼에 event 부여
+            $button[i].addEventListener('click', onClickButton);
+        }
+
+    </script>
+</body>
+</html>
