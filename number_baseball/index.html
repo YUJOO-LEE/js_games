@@ -81,7 +81,6 @@
         const $error = document.querySelector('#error');
         const $logs = document.querySelector('#logs');
 
-        let number = [1,2,3,4,5,6,7,8,9]  //뽑을 대상 숫자
         let answer = [];    //랜덤으로 뽑힌 숫자
         let strike = 0;
         let ball = 0;
@@ -90,7 +89,7 @@
         let logs = [];
 
         const start = () => {   //문제 출제
-            number = [1,2,3,4,5,6,7,8,9];    //뽑을 숫자 카드 초기화
+            let number = [1,2,3,4,5,6,7,8,9];    //뽑을 숫자 카드
             answer = [];    //기존 정답 초기화
             $input.value = '';  //인풋 입력 값 초기화
 
@@ -129,6 +128,7 @@
             }
             tried++;
             logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} :  스트라이크 ${strike}, 볼 ${ball}`); //로그 리스트에 추가
+            checkTried();   //게임 결과 출력
         }
         
         const checkTried = () => {  //게임 결과 출력
@@ -153,8 +153,7 @@
                     return;
                 }
 
-            checkNumber();  //정답 체크
-            checkTried();   //게임 결과 출력
+            checkNumber();  //정답 및 게임 결과 체크
             $logs.innerHTML = logs.join('<br>');    //로그 한줄씩 출력
             //console.log(answer, myAnswer, strike, ball);
             strike = 0;
