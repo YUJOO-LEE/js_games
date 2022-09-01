@@ -100,13 +100,25 @@
             }
         }
 
-        const checkNumber = () => { //정답 체크
-            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
-
-                if (myAnswer.indexOf(myAnswer[i]) !== myAnswer.lastIndexOf(myAnswer[i])) { //중복여부 체크
-                    $error.textContent = '✓ 중복된 숫자가 있습니다. 다시 입력 해 주세요.';
-                    return;
+        const errorCheck = (i) => {  //에러 체크
+            if (isNaN(Number(myAnswer[i]))) {   //문자 포함 여부 확인
+                    $error.textContent = '✓ 숫자로만 입력 해 주세요.';
+                    return false;
                 }
+
+                if (myAnswer.indexOf(myAnswer[i]) !== myAnswer.lastIndexOf(myAnswer[i])) { //중복 여부 확인
+                    $error.textContent = '✓ 중복된 숫자가 있습니다. 다시 입력 해 주세요.';
+                    return false;
+                }
+        }
+
+        const checkNumber = () => { //정답 체크
+
+            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
+                
+                if (errorCheck(i) === false) {  //에러 체크
+                    return;
+                };
 
                 if (Number(myAnswer[i]) === answer[i]) {    //스트라이크 여부 (자릿수같은지)
                     strike++;
@@ -134,6 +146,11 @@
             event.preventDefault(); //submit 안넘어가게
             myAnswer = $input.value;
             $error.textContent = '';
+
+            if (myAnswer.length < 4) {  //4자릿수 입력여부 확인
+                    $error.textContent = '✓ 4자리 숫자를 입력 해 주세요.';
+                    return;
+                }
 
             checkNumber();  //정답 체크
             checkTried();   //게임 결과 출력
