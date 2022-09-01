@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>숫자 야구</title>
+</head>
+<body>
+    <form id="form">
+        <input type="text" value="" id="input" maxlength="4">
+        <button>확인</button>
+    </form>
+    <div id="error"></div>
+    <div id="logs"></div>
+    <script>
+        const $form = document.querySelector('#form');
+        const $input = document.querySelector('#input');
+        const $button = document.querySelector('button');
+        const $error = document.querySelector('#error');
+        const $logs = document.querySelector('#logs');
+
+        const number = [1,2,3,4,5,6,7,8,9]  //뽑을 대상 숫자
+        let answer = [];                  //랜덤으로 뽑힌 숫자
+        let strike = 0;
+        let ball = 0;
+        let tried = 0;
+        let myAnswer;
+        let logs = [];
+
+        const start = () => {
+            answer = [];
+
+            for (let i = 0 ; i < 4 ; i++ ) {    //랜덤숫자 4개 추출               
+                const index = Math.floor(Math.random() * number.length);
+                answer.push(number[index]);
+                number.splice(index, 1);        //뽑을 대상에서 제외시켜서 중복 추출 방지
+            }
+        }
+
+        const onClickBtn = (event) => {
+            event.preventDefault();
+            myAnswer = $input.value;
+            $error.textContent = '';
+
+            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
+
+                if (myAnswer.indexOf(myAnswer[i]) !== myAnswer.lastIndexOf(myAnswer[i])) { //중복여부 체크
+                    $error.textContent = '중복된 숫자가 있습니다. 다시 입력 해 주세요.';
+                    return;
+                }
+
+                if (Number(myAnswer[i]) === answer[i]) {
+                    strike++;
+                }else if (answer.indexOf(Number(myAnswer[i])) > -1) {
+                    ball++;
+                }
+
+            }
+            
+            tried++;
+            logs.push(`\n ${tried}번째 시도 : ${myAnswer} :  스트라이크 ${strike}, 볼 ${ball}`);
+
+            if (strike === 4) {
+                logs.push(`성공입니다. 정답은 ${answer}`);
+                tried = 0;
+                start();
+            } else if (tried === 10) {
+                logs.push(`실패입니다. 문제를 새로 출력합니다. 정답은 ${answer}`);
+                tried = 0;
+                start();
+            }
+
+            $logs.innerHTML = logs.join('<br>');
+            //console.log(answer, myAnswer, strike, ball);
+            strike = 0;
+            ball = 0;
+        }
+
+        start();
+        $button.addEventListener('click', onClickBtn);
+    </script>
+</body>
+</html>
