@@ -77,7 +77,6 @@
     <script>
         const $form = document.querySelector('#form');
         const $input = document.querySelector('#input');
-        const $button = document.querySelector('button');
         const $error = document.querySelector('#error');
         const $logs = document.querySelector('#logs');
 
@@ -100,38 +99,14 @@
             }
         }
 
-        const errorCheck = (i) => {  //에러 체크
-            if (isNaN(Number(myAnswer[i]))) {   //문자 포함 여부 확인
-                    $error.textContent = '✓ 숫자로만 입력 해 주세요.';
-                    return false;
-                }
-
-                if (myAnswer.indexOf(myAnswer[i]) !== myAnswer.lastIndexOf(myAnswer[i])) { //중복 여부 확인
-                    $error.textContent = '✓ 중복된 숫자가 있습니다. 다시 입력 해 주세요.';
-                    return false;
-                }
-        }
-
-        const checkNumber = () => { //정답 체크
-
-            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
-                
-                if (errorCheck(i) === false) {  //에러 체크
-                    return;
-                };
-
-                if (Number(myAnswer[i]) === answer[i]) {    //스트라이크 여부 (자릿수같은지)
-                    strike++;
-                }else if (answer.indexOf(Number(myAnswer[i])) > -1) {   //볼 여부 (자릿수는 달라도 정답에 포함은 되어있는지)
-                    ball++;
-                }
-            }
-            tried++;
-            logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} :  스트라이크 ${strike}, 볼 ${ball}`); //로그 리스트에 추가
-            checkTried();   //게임 결과 출력
+        const printLogs = () => {   //로그 한줄씩 출력
+            $logs.innerHTML = logs.join('<br>');
+            //console.log(answer, myAnswer, strike, ball);
+            strike = 0;
+            ball = 0;
         }
         
-        const checkTried = () => {  //게임 결과 출력
+        const gameResults = () => {  //도전 횟수 확인
             if (strike === 4) { //스트라이크 4개 = 홈런 출력
                 logs.unshift(`➜ <span>홈런입니다. 정답은 ${answer}! 문제가 새로 출제 됩니다.</span>`);
                 tried = 0;
@@ -141,6 +116,35 @@
                 tried = 0;
                 start();
             }
+            printLogs();    //로그 한줄씩 출력
+        }
+
+        const errorCheck = (myAnswer) => {  //에러 체크
+            if (myAnswer.length < 4) {  //4자릿수 입력여부 확인
+                $error.textContent = '✓ 4자리 숫자를 입력 해 주세요.';
+                return false;
+            }
+            if (parseInt(myAnswer).length < 4) {   //문자 포함 여부 확인
+                $error.textContent = '✓ 숫자로만 입력 해 주세요.';
+                return false;
+            }
+            if (new Set(myAnswer).size !== 4) { //중복 여부 확인
+                $error.textContent = '✓ 중복된 숫자가 있습니다. 다시 입력 해 주세요.';
+                return false;
+            }
+            return true;
+        }
+
+        const checkNumber = () => { //정답 체크
+            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
+                if (Number(myAnswer[i]) === answer[i]) {    //스트라이크 여부 (자릿수같은지)
+                    strike++;
+                }else if (answer.indexOf(Number(myAnswer[i])) > -1) {   //볼 여부 (자릿수는 달라도 정답에 포함은 되어있는지)
+                    ball++;
+                }
+            }
+            tried++;
+            logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} :  스트라이크 ${strike}, 볼 ${ball}`); //로그 리스트에 추가
         }
 
         const onClickBtn = (event) => { //버튼 클릭 시 이벤트
@@ -148,20 +152,14 @@
             myAnswer = $input.value;
             $error.textContent = '';
 
-            if (myAnswer.length < 4) {  //4자릿수 입력여부 확인
-                    $error.textContent = '✓ 4자리 숫자를 입력 해 주세요.';
-                    return;
-                }
-
-            checkNumber();  //정답 및 게임 결과 체크
-            $logs.innerHTML = logs.join('<br>');    //로그 한줄씩 출력
-            //console.log(answer, myAnswer, strike, ball);
-            strike = 0;
-            ball = 0;
+            if (errorCheck(myAnswer)) {
+                checkNumber();  //정답 및 게임 결과 체크
+            }
+            gameResults();   //게임 결과 출력
         }
 
         start();    //문제 자동 출제
-        $button.addEventListener('click', onClickBtn);  //버튼 클릭 시 이벤트
+        $form.addEventListener('submit', onClickBtn);  //버튼 클릭 시 이벤트
     </script>
 </body>
 </html>
