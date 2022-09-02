@@ -86,15 +86,17 @@
         <p id="word"></p>
       </div>
       <div>
-        <input type="text">
-        <button>입력</button>
+        <form id="form">
+          <input type="text">
+          <button>입력</button>
+        </form>
       </div>
     </section>
   </main>
   <script>
     const $people = document.querySelector('#people');
     const $input = document.querySelector('input');
-    const $button = document.querySelector('button');
+    const $form = document.querySelector('form');
     const $word = document.querySelector('#word');
     const $user = document.querySelector('#user');
 
@@ -115,37 +117,36 @@
     const userListLi = document.querySelectorAll('#user li'); //li리스트 불러오기
     const userListI = document.querySelectorAll('#user i'); //i리스트 불러오기
 
-    const onClickButton = () => {
+    const onClickButton = (event) => {
+      event.preventDefault(); //submit 안넘어가게
 
-      if (newWord.length > 1) { //글자수 확인
-        if (!word || word[word.length-1] === newWord[0]) { //입력 상황 판단 (제시어가 없거나 끝말이 맞을 때)
-          word = newWord;
-          $word.textContent = word;
-          userListLi[order].classList.remove('turn');
-          userListI[order].classList.remove('fa-circle-arrow-right'); //내 차례 화살표 삭제
-          userListI[order].classList.add('fa-circle-dot'); //일반 아이콘으로 변경
-          if (order === number - 1) { //본인 차례와 총 인원수 비교
-            order = 0;
-          }else{
-            order++;
-          }
-          userListI[order].classList.remove('fa-circle-dot'); //일반 아이콘 삭제
-          userListI[order].classList.add('fa-circle-arrow-right'); //내 차례 화살표로 변경
-          userListLi[order].classList.add('turn');
-        }else{
-          alert('틀렸습니다. 다시 입력하세요.');
-        }
-        $input.value = '';
-      }else{ //2글자 미만일때
+      if ($input.value.length < 2) {  //한글자 입력 방지
         alert('2글자 이상 입력 해 주세요.');
+      } else if (word && word[word.length-1] !== newWord[0]) { //입력 상황 판단 (제시어가 있고 끝말이 틀릴 때)
+        alert('틀렸습니다. 다시 입력하세요.');
+      } else { //입력 상황 판단 (제시어가 없거나 끝말이 맞을 때)
+        word = newWord;
+        $word.textContent = word;
+        userListLi[order].classList.remove('turn');
+        userListI[order].classList.remove('fa-circle-arrow-right'); //내 차례 화살표 삭제
+        userListI[order].classList.add('fa-circle-dot'); //일반 아이콘으로 변경
+        if (order === number - 1) { //본인 차례와 총 인원수 비교
+          order = 0;
+        }else{
+          order++;
+        }
+        userListI[order].classList.remove('fa-circle-dot'); //일반 아이콘 삭제
+        userListI[order].classList.add('fa-circle-arrow-right'); //내 차례 화살표로 변경
+        userListLi[order].classList.add('turn');
       }
+      $input.value = '';
       $input.focus();
     }
     const onInput = (event) => {
       newWord = event.target.value;
     }
 
-    $button.addEventListener('click', onClickButton);
+    $form.addEventListener('submit', onClickButton);
     $input.addEventListener('input', onInput);
     
   </script>
