@@ -19,6 +19,27 @@
             text-align: center;
             border: 1px solid #000;
             border-radius: 20px;
+            font-weight: bold;
+        }
+        .red {
+            background-color: red;
+            color: white;
+        }
+        .orange {
+            background-color: orange;
+            color: black;
+        }
+        .yellow {
+            background-color: yellow;
+            color: black;
+        }
+        .blue {
+            background-color: blue;
+            color: white;
+        }
+        .green {
+            background-color: green;
+            color: white;
         }
     </style>
 </head>
@@ -29,35 +50,56 @@
         const $result = document.querySelector('#result');
         const $bonus = document.querySelector('#bonus');
 
-        const candidate = Array(45).fill().map((number, i) => i ++);
+        const candidate = Array(45).fill().map((number, i) => i ++);    //뽑을 숫자 후보 지정
         const shuffle = [];
 
-        while (candidate.length > 0) {
+        while (candidate.length > 0) {  //숫자 후보 돌면서 셔플
             const random = Math.floor(Math.random() * candidate.length);
             const spliceArray = candidate.splice(random, 1);
             const Number = spliceArray[0];
-            shuffle.push(Number);
+            shuffle.push(Number);   //섞인 숫자 셔플 변수에 추가
         }
 
-        const winBalls = shuffle.splice(0, 6).sort((a, b) => a - b);
-        const bonus = shuffle[6];
+        const winBalls = shuffle.splice(0, 6).sort((a, b) => a - b);    //셔플에 들어가있는 숫자 6개 추출해서 작은순으로 재배치
+        const bonus = shuffle[6];   //셔플에 있던 7번째 숫자는 보너스번호로 추가
 
-        const showBall = (number, target) => {
+        const colorize = (number, $ball) => {   //당첨번호 배경 컬러 지정
+            if (number < 10) {
+                $ball.classList.add('red');
+            } else if (number < 20) {
+                $ball.classList.add('orange');
+            } else if (number < 30) {
+                $ball.classList.add('yellow');
+            } else if (number < 40) {
+                $ball.classList.add('blue');
+            } else {
+                $ball.classList.add('green');
+            }
+        }
+
+        const showBall = (number, target) => {  //당첨번호 뿌리기
             const $ball = document.createElement('div');
-            $ball.className = 'ball';
             $ball.textContent = number;
-            target.append($ball);
+            $ball.className = 'ball';
+            colorize(number, $ball);    //배경 컬러 지정
+            target.append($ball);   //ball 태그에 추가
         }
 
-        for (let i = 0; i < winBalls.length ; i++) {
+        for (let i = 0; i < winBalls.length ; i++) {    //당첨번호 갯수만큼 (6개) 돌면서
+            /*
+            <let i 를 쓰고 var i 를 쓰지 않는 이유>
+            let은 블록스코프 이지만, var는 함수 스코프이기 때문에 for안에서 고정되어 있지 않고 대괄호 밖으로 변수가 나가버림.
+            for문을 다 돌고 난 뒤 한참뒤에 i를 찾으면(여기서는 setTimeout) var는 이미 6까지 다 더해져 있어서 원하는 값이 나오지 않는다.
+            오오...
+            */
             setTimeout(() => {
-                showBall(winBalls[i], $result);
-            }, (i + 1) * 1000)
+                showBall(winBalls[i], $result); //하나씩 뽑아오기
+            }, (i + 1) * 1000)  //1초에 하나씩 출력
         }
 
         setTimeout(() => {
-            showBall(bonus, $bonus);
-        }, 7000)
+            showBall(bonus, $bonus);    //보너스 번호 뽑아오기
+        }, 7000)    //당첨번호 6개 출력 후 = 시작시간으로부터 7초뒤 출력
     </script>
 </body>
 </html>
