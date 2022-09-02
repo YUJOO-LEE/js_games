@@ -82,6 +82,7 @@
 
         let answer = [];    //랜덤으로 뽑힌 숫자
         let tried = 0;
+        let outCount = 0;
         let myAnswer;
         let logs = [];
 
@@ -97,7 +98,7 @@
             }
         }
 
-        const errorCheck = (myAnswer) => {  //에러 체크
+        const errorCheck = () => {  //에러 체크
             if (myAnswer.length < 4) {  //4자릿수 입력여부 확인
                 $error.textContent = '✓ 4자리 숫자를 입력 해 주세요.';
                 return false;
@@ -117,24 +118,36 @@
             let strike = 0;
             let ball = 0;
 
-            for (let i = 0 ; i < myAnswer.length ; i++){  //내가 선택한 숫자 하나씩 들고
-                if (Number(myAnswer[i]) === answer[i]) {    //스트라이크 여부 (자릿수같은지)
+            for (let i = 0 ; i < myAnswer.length ; i++){
+                const index = myAnswer.indexOf(answer[i]);  //정답으로 인덱스 찾기
+                if (index === i) {  //자릿수 같은지 확인
                     strike++;
-                }else if (answer.indexOf(Number(myAnswer[i])) > -1) {   //볼 여부 (자릿수는 달라도 정답에 포함은 되어있는지)
+                } else if (index > -1) {    //자릿수는 다르지만 포함은 되어있는지 확인
                     ball++;
                 }
             }
-            tried++;
-            logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} :  스트라이크 ${strike}, 볼 ${ball}`); //로그 리스트에 추가
+
+            tried++;    //시도횟수 추가
+            if (strike === 0 && ball === 0) {   // 0스트 0볼일시 아웃카운트 저장
+                outCount++;
+                logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} : ${outCount} 아웃 입니다. (포함 숫자 없음)`); //로그 리스트에 추가
+            } else {
+                logs.unshift(`\n ${tried}번째 시도 : ${myAnswer} : ${strike} 스트라이크, ${ball} 볼`); //로그 리스트에 추가
+            }
         }
 
         const checkGame = () => {  //게임 결과 확인
             if (answer.join('') === myAnswer) { //정답과 비교 후 홈런 출력
-                logs.unshift(`➜ <span>홈런입니다. 정답은 ${answer}! 문제가 새로 출제 됩니다.</span>`);
+                logs.unshift(`➜ <span>홈런입니다. 정답은 ${answer}! 문제가 리셋 됩니다.</span>`);
                 tried = 0;
                 start();    //문제 리셋
-            } else if (tried === 10) {  //10번째 안에 성공 못할 시 실패 출력
-                logs.unshift(`➜ <span>실패입니다. 정답은 ${answer}! 문제가 새로 출제 됩니다.</span>`);
+            } else if (outCount === 2) {  //10번째 안에 성공 못할 시 실패 출력
+                logs.unshift(`➜ <span>3 아웃으로 실패했습니다. 정답은 ${answer}! 문제가 리셋 됩니다.</span>`);
+                tried = 0;
+                outCount = 0;
+                start();    //문제 리셋
+            }  else if (tried === 10) {  //10번째 안에 성공 못할 시 실패 출력
+                logs.unshift(`➜ <span>실패입니다. 정답은 ${answer}! 문제가 리셋 됩니다.</span>`);
                 tried = 0;
                 start();    //문제 리셋
             } else {
@@ -147,13 +160,14 @@
             myAnswer = $input.value;
             $error.textContent = '';
 
-            if (errorCheck(myAnswer)) { //에러 체크
+            if (errorCheck()) { //에러 체크
                 checkGame();   //게임 결과 확인
             }
             $logs.innerHTML = logs.join('<br>');    //결과값 로그에 한줄씩 출력
         }
 
         start();    //문제 자동 출제
+        console.log(answer);
         $form.addEventListener('submit', onClickBtn);  //버튼 클릭 시 이벤트
     </script>
 </body>
