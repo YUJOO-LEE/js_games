@@ -45,14 +45,23 @@
             background-color: black;
             color: white;
         }
+        #msg {
+            color: red;
+        }
+        #score {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <main>
         <div>
             <h1>
-                <span id="tried">1</span>번째 도전
+                <span id="tried">1</span>번째 시도
             </h1>
+            <p>
+                (5번 시도 내 3점시 승리)
+            </p>
         </div>
         <div id="computer"></div>
         <div>
@@ -112,6 +121,7 @@
         if (parseInt($score.textContent) === 3) {   //점수 3점 이상 승리 처리
             $tried.parentElement.textContent = '게임을 승리했습니다.';
             endGame = true;
+
         } else if (parseInt($tried.textContent) === 5 ||    //승리를 못했는데 5번째 시도였거나, 
             (5 - $tried.textContent < 3 - $score.textContent)) {    //남은 시도횟수 내 3승 가능성 없을때
             $tried.parentElement.textContent = '게임을 실패했습니다.';
@@ -122,12 +132,14 @@
     const checkHands = () => {   //컴퓨터 값과 사용자 선택값 비교
         if (myChoice === computerChoice) {
             $msg.textContent = '비겼습니다.';
+
         } else if ((myChoice === 'scissors' && computerChoice === 'paper') ||   //승리조건
             (myChoice === 'rock' && computerChoice === 'scissors') ||
             (myChoice === 'paper' && computerChoice === 'rock')) {
 
             $msg.textContent = '이겼습니다.';
             $score.textContent++;
+
         } else {    //졌을 때
             $msg.textContent = '졌습니다.';
         } 
@@ -142,13 +154,15 @@
             e.target.classList.add('selected');
 
             toggleBtn = false;  //버튼 동작 일시 정지 (멈춘 상태에서 클릭방지)
+
         } else if ($tried.textContent < 5 && !toggleBtn && !endGame) {  //일시정지 버튼 재실행
             $msg.textContent = '';
-            $tried.textContent++;
+            $tried.textContent++;   //시도횟수 증가
             for (let i = 0 ; i < $btn.length ; i++) {
                 $btn[i].classList.remove('selected'); //버튼 클래스 초기화
             }
             computerHand = setInterval(changeHand, 50); //다시 가위바위보 실행
+
         } else {
             clearInterval(computerHand);    //이미지 멈추기
             $msg.textContent = '게임을 다시 시작하세요.';
