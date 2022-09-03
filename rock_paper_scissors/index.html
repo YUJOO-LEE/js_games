@@ -92,6 +92,7 @@
     let myChoice;  //사용자 선택값
     let toggleBtn = true;   //버튼 작동 여부 : 기본 true
     let endGame;    //게임 종료 여부
+    let tried = 1;
 
     const imgUrl = './rsp.png';
     $computer.style.backgroundImage = `url(${imgUrl})`; //바위 -230px, 보 -438px
@@ -122,8 +123,8 @@
             $tried.parentElement.textContent = '게임을 승리했습니다.';
             endGame = true;
 
-        } else if (parseInt($tried.textContent) === 5 ||    //승리를 못했는데 5번째 시도였거나, 
-            (5 - $tried.textContent < 3 - $score.textContent)) {    //남은 시도횟수 내 3승 가능성 없을때
+        } else if (parseInt(tried) === 5 ||    //승리를 못했는데 5번째 시도였거나, 
+            (5 - tried < 3 - $score.textContent)) {    //남은 시도횟수 내 3승 가능성 없을때
             $tried.parentElement.textContent = '게임을 실패했습니다.';
             endGame = true;
         }
@@ -132,13 +133,14 @@
     const checkHands = () => {   //컴퓨터 값과 사용자 선택값 비교
         if (myChoice === computerChoice) {
             $msg.textContent = '비겼습니다.';
+            tried--;    //시도횟수 차감 안되게 미리 빼기
 
         } else if ((myChoice === 'scissors' && computerChoice === 'paper') ||   //승리조건
             (myChoice === 'rock' && computerChoice === 'scissors') ||
             (myChoice === 'paper' && computerChoice === 'rock')) {
 
             $msg.textContent = '이겼습니다.';
-            $score.textContent++;
+            $score.textContent++;   //점수 증가
 
         } else {    //졌을 때
             $msg.textContent = '졌습니다.';
@@ -146,18 +148,17 @@
     }
 
     const btnClick = (e) => {   //버튼 클릭 이벤트
-        if (toggleBtn || (5 - $tried.textContent < 3 - $score.textContent) && !endGame) {   //끝난 게임이 아니고, 잔여횟수로 이길 가능성 있을 때
+        if (toggleBtn || (5 - tried < 3 - $score.textContent) && !endGame) {   //끝난 게임이 아니고, 잔여횟수로 이길 가능성 있을 때
             clearInterval(computerHand);    //이미지 멈추기
-
             myChoice = e.target.id; //사용자가 선택한 값
             checkGame();    //게임 승패 처리
             e.target.classList.add('selected');
-
             toggleBtn = false;  //버튼 동작 일시 정지 (멈춘 상태에서 클릭방지)
 
-        } else if ($tried.textContent < 5 && !toggleBtn && !endGame) {  //일시정지 버튼 재실행
+        } else if (tried < 5 && !toggleBtn && !endGame) {  //일시정지 버튼 재실행
             $msg.textContent = '';
-            $tried.textContent++;   //시도횟수 증가
+            tried++;   //시도횟수 증가
+            $tried.textContent = tried; //시도횟수 출력
             for (let i = 0 ; i < $btn.length ; i++) {
                 $btn[i].classList.remove('selected'); //버튼 클래스 초기화
             }
@@ -166,6 +167,7 @@
         } else {
             clearInterval(computerHand);    //이미지 멈추기
             $msg.textContent = '게임을 다시 시작하세요.';
+
         }
     }
 
