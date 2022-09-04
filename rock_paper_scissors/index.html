@@ -48,21 +48,16 @@
         #msg {
             color: red;
         }
-        #score {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
     <main>
-        <div>
-            <h1>
-                <span id="tried">1</span>번째 시도
-            </h1>
-            <p>
-                (5번 시도 내 3점시 승리)
-            </p>
-        </div>
+        <h1>
+            <span id="myScore">0</span> : <span id="computerScore">0</span>
+        </h1>
+        <p>
+            <span id="tried">1</span>번째 시도
+        </p>
         <div id="computer"></div>
         <div>
             <button id="scissors" class="btn">가위</button>
@@ -70,11 +65,6 @@
             <button id="paper" class="btn">보</button>
         </div>
         <div id="msg"></div>
-        <div>
-            <p>
-                현재 점수 <span id="score">0</span>점 입니다.
-            </p>
-        </div>
         <div>
             <button id="retry">게임 초기화</button>
         </div>
@@ -84,20 +74,19 @@
     const $computer = document.querySelector('#computer');
     const $btn = document.querySelectorAll('.btn');
     const $msg = document.querySelector('#msg');
-    const $score = document.querySelector('#score');
+    const $myScore = document.querySelector('#myScore');
+    const $computerScore = document.querySelector('#computerScore');
     const $tried = document.querySelector('#tried');
     const $retry = document.querySelector('#retry');
 
     let computerChoice = 'scissors'; //컴퓨터 선택값 기본세팅 : 가위
-    let myChoice;  //사용자 선택값
-    let toggleBtn = true;   //버튼 작동 여부 : 기본 true
-    let endGame;    //게임 종료 여부
-    let tried = 1;
+    let toggleBtn = true;   //버튼 작동 여부 : true 선택가능, false 선택됨
+    let endGame = false;    //게임 종료 여부 : true 종료된 게임, false 진행중인 게임
+    let tried = 1;  //시도횟수
 
-    const imgUrl = './rsp.png';
+    const imgUrl = './rsp.png'; //가위바위보 이미지
     $computer.style.backgroundImage = `url(${imgUrl})`; //바위 -230px, 보 -438px
     $computer.style.backgroundSize = 'auto 200px';
-
     const rspX = {  //가위바위보 이미지 가로축 위치
         scissors : '1px',
         rock : '-230px',
@@ -116,21 +105,7 @@
         toggleBtn = true;   //버튼 작동
     }
 
-    const checkGame = () => { //게임 승패 처리
-        checkHands();   //컴퓨터 값과 사용자 선택값 비교
-
-        if (parseInt($score.textContent) === 3) {   //점수 3점 이상 승리 처리
-            $tried.parentElement.textContent = '게임을 승리했습니다.';
-            endGame = true;
-
-        } else if (parseInt(tried) === 5 ||    //승리를 못했는데 5번째 시도였거나, 
-            (5 - tried < 3 - $score.textContent)) {    //남은 시도횟수 내 3승 가능성 없을때
-            $tried.parentElement.textContent = '게임을 실패했습니다.';
-            endGame = true;
-        }
-    }
-
-    const checkHands = () => {   //컴퓨터 값과 사용자 선택값 비교
+    const checkHands = (myChoice) => {   //컴퓨터 값과 사용자 선택값 비교
         if (myChoice === computerChoice) {
             $msg.textContent = '비겼습니다.';
             tried--;    //시도횟수 차감 안되게 미리 빼기
@@ -140,34 +115,46 @@
             (myChoice === 'paper' && computerChoice === 'rock')) {
 
             $msg.textContent = '이겼습니다.';
-            $score.textContent++;   //점수 증가
+            $myScore.textContent++;   //내 점수 증가
 
         } else {    //졌을 때
             $msg.textContent = '졌습니다.';
+            $computerScore.textContent++;   //컴퓨터 점수 증가
         } 
     }
 
+    const checkGame = (myChoice) => { //게임 승패 처리
+        checkHands(myChoice);   //컴퓨터 값과 사용자 선택값 비교
+
+        if (parseInt($myScore.textContent) === 3) {   //비교 후 내 점수 3점시 승리처리
+            $tried.parentElement.textContent = '게임을 승리했습니다.';
+            endGame = true;
+
+        } else if (parseInt($computerScore.textContent) === 3) {    //컴퓨터 점수 3점시 패배처리
+            $tried.parentElement.textContent = '게임을 실패했습니다.';
+            endGame = true;
+        }
+    }
+
     const btnClick = (e) => {   //버튼 클릭 이벤트
-        if (toggleBtn || (5 - tried < 3 - $score.textContent) && !endGame) {   //끝난 게임이 아니고, 잔여횟수로 이길 가능성 있을 때
+        if (toggleBtn && !endGame) {
             clearInterval(computerHand);    //이미지 멈추기
-            myChoice = e.target.id; //사용자가 선택한 값
-            checkGame();    //게임 승패 처리
-            e.target.classList.add('selected');
+            checkGame(e.target.id);    //게임 승패 처리
+            e.target.classList.add('selected'); //선택된 버튼 효과 추가
             toggleBtn = false;  //버튼 동작 일시 정지 (멈춘 상태에서 클릭방지)
 
-        } else if (tried < 5 && !toggleBtn && !endGame) {  //일시정지 버튼 재실행
+        } else if (!toggleBtn && !endGame) {  //일시정지된 버튼 재실행
             $msg.textContent = '';
             tried++;   //시도횟수 증가
             $tried.textContent = tried; //시도횟수 출력
             for (let i = 0 ; i < $btn.length ; i++) {
-                $btn[i].classList.remove('selected'); //버튼 클래스 초기화
+                $btn[i].classList.remove('selected'); //전체 버튼 효과 제거
             }
             computerHand = setInterval(changeHand, 50); //다시 가위바위보 실행
 
         } else {
             clearInterval(computerHand);    //이미지 멈추기
             $msg.textContent = '게임을 다시 시작하세요.';
-
         }
     }
 
