@@ -14,25 +14,38 @@
             width: 100%;
             height: 100vh;
             height: 100dvh;
+            background-color: lightblue;
             display: flex;
-            flex-flow: column nowrap;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
-            background-color: lightblue;
         }
-        main>.white_box {
+        main>div {
             width: 80%;
             max-width: 800px;
-            height: auto;
+            height: 80vh;
+            display: flex;
+            flex-flow: row wrap;
+            justify-content:stretch;
+            align-items: stretch;
+            gap: 1rem;
+        }
+        .white_box {
+            flex-grow: 1;
+            width: 40%;
+            height: 40%;
             background-color: white;
             padding: 1rem;
             border-radius: 1rem;
+            box-sizing: border-box;
+        }
+        .white_box:nth-of-type(1){
+            width: 100%;
+            height: 60%;
         }
         #screen {
             cursor: pointer;
             width: 100%;
-            height: 40vh;
+            height: 100%;
             border-radius: 1rem;
             display: flex;
             flex-flow: column wrap;
@@ -58,15 +71,9 @@
             padding: 1rem;
             border-radius: 0.5rem;
         }
-        .records_box {
+        #records, #best {
             width: 100%;
-            height: 20vh;
-        }
-        #records {
-            width: 100%;
-            height: 80%;
-            border-top: 1px solid lightblue;
-            margin-top: 0.5rem;
+            height: 90%;
             padding-top: 1rem;
             box-sizing: border-box;
             display: flex;
@@ -75,6 +82,11 @@
             overflow: auto;
             gap: 1rem;
         }
+        h2 {
+            height: 10%;
+            padding-bottom: 0.5rem;
+            box-sizing: border-box;
+        }
         #records>p {
             background-color: lightgray;
             line-height: 1.5rem;
@@ -82,21 +94,49 @@
             border-radius: 0.5rem;
             padding: 0.5rem;
         }
+        #best {
+            align-content: stretch;
+        }
+        #best>p {
+            flex-grow: 1;
+            background-color: lightblue;
+            line-height: 1.5rem;
+            font-size: 1.5rem;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #best>p:nth-of-type(1) {
+            width: 100%;
+            background-color: gold;
+        }
+        #best>p:nth-of-type(2) {
+            background-color: silver;
+        }
+        #best>p:nth-of-type(3) {
+            background-color: goldenrod;
+        }
     </style>
 </head>
 <body>
     <main>
-        <div class="white_box">
-            <div id="screen" class="ready">
-                <p id="result"></p>
-                <p id="msg">Get Started</p>
-            </div>
-        </div>
-        <div class="white_box">
-            <div class="records_box">
+        <div>
+            <section class="white_box">
+                <div id="screen" class="ready">
+                    <p id="result"></p>
+                    <p id="msg">Get Started</p>
+                </div>
+            </section>
+            <section class="white_box">
                 <h2>My Records</h2>
                 <div id="records"></div>
-            </div>
+            </section>
+            <section class="white_box">
+                <h2>Best Record</h2>
+                <div id="best"></div>
+            </section>
         </div>
     </main>
     <script>
@@ -104,6 +144,7 @@
         const $result = document.querySelector('#result');
         const $msg = document.querySelector('#msg');
         const $records = document.querySelector('#records');
+        const $best = document.querySelector('#best');
 
         const records = [];
         let setWait;    //대기시간 타이머
@@ -136,11 +177,17 @@
                     reactionTime = new Date();  //클릭 시간 저장
                     $screen.className = 'ready';    //파란색 초기 화면으로 전환
                     $msg.textContent = 'Get Started';
+                    $best.innerHTML = '';
 
                     const current = reactionTime - startTime;   //끝시간 - 시작시간 = 내가 반응하기까지 대기한 속도
                     records.unshift(current);  //기록 배열에 추가
                     const average = records.reduce((a, c) => a + c) / records.length;   //평균시간 계산 (모두 더해서 갯수로 나누기)
+                    const bestRecord = records.slice(0, 5).sort((a, b) => a - b);  //최고 기록 배열
+
                     $records.innerHTML = `<p>${records.join('ms</p><p>')}ms</p>`;  //기록 출력
+                    bestRecord.forEach((element, index) => {
+                        $best.innerHTML += `<p>${index + 1}위 ${element}ms</p>`;  //최고 기록 출력
+                    });
                     $result.innerText = `내 반응속도 : ${current}ms\n내 평균속도 : ${Math.round(average)}ms`; //반응 시간 출력
                     break;
             }
