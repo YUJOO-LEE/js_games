@@ -14,15 +14,16 @@
             width: 100%;
             height: 100vh;
             display: flex;
+            flex-flow: column nowrap;
             justify-content: center;
             align-items: center;
+            gap: 1rem;
             background-color: lightblue;
         }
-        main>div {
+        main>.white_box {
             width: 80%;
             max-width: 800px;
-            height: 80vh;
-            max-height: 600px;
+            height: auto;
             background-color: white;
             padding: 1rem;
             border-radius: 1rem;
@@ -30,13 +31,13 @@
         #screen {
             cursor: pointer;
             width: 100%;
-            height: 100%;
+            height: 40vh;
             border-radius: 1rem;
             display: flex;
             flex-flow: column wrap;
             gap: 2rem;
             justify-content: center;
-            align-content: center;
+            align-items: center;
             color: black;
             font-size: 2rem;
             text-align: center;
@@ -56,14 +57,44 @@
             padding: 1rem;
             border-radius: 0.5rem;
         }
+        .records_box {
+            width: 100%;
+            height: 30vh;
+        }
+        #records {
+            width: 100%;
+            height: 85%;
+            border-top: 1px solid lightblue;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-flow: row wrap;
+            align-content: flex-start;
+            overflow: auto;
+            gap: 1rem;
+        }
+        #records>p {
+            background-color: lightgray;
+            line-height: 1.5rem;
+            font-size: 1.5rem;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
     </style>
 </head>
 <body>
     <main>
-        <div>
+        <div class="white_box">
             <div id="screen" class="ready">
                 <p id="result"></p>
                 <p id="msg">Get Started</p>
+            </div>
+        </div>
+        <div class="white_box">
+            <div class="records_box">
+                <h2>My Records</h2>
+                <div id="records"></div>
             </div>
         </div>
     </main>
@@ -71,7 +102,9 @@
         const $screen = document.querySelector('#screen');
         const $result = document.querySelector('#result');
         const $msg = document.querySelector('#msg');
+        const $records = document.querySelector('#records');
 
+        const records = [];
         let setWait;    //대기시간 타이머
         let startTime;   //시작시간
         let reactionTime;   //반응시간 변수
@@ -102,7 +135,12 @@
                     reactionTime = new Date();  //클릭 시간 저장
                     $screen.className = 'ready';    //파란색 초기 화면으로 전환
                     $msg.textContent = 'Get Started';
-                    $result.textContent = `내 반응속도 : ${reactionTime - startTime}ms`; //반응 시간 출력
+
+                    const current = reactionTime - startTime;   //끝시간 - 시작시간 = 내가 반응하기까지 대기한 속도
+                    records.unshift(current);  //기록 배열에 추가
+                    const average = records.reduce((a, c) => a + c) / records.length;   //평균시간 계산 (모두 더해서 갯수로 나누기)
+                    $records.innerHTML = `<p>${records.join('ms</p><p>')}ms</p>`;  //기록 출력
+                    $result.innerText = `내 반응속도 : ${current}ms\n내 평균속도 : ${Math.round(average)}ms`; //반응 시간 출력
                     break;
             }
         }
