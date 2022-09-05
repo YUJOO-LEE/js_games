@@ -40,32 +40,31 @@
                 rows[ri][2].textContent === turn) { //가로 확인
 
                 hasWinner = true;
-            }
-            if (rows[0][ci].textContent === turn &&
+                return true;
+            } else if (rows[0][ci].textContent === turn &&
                 rows[1][ci].textContent === turn &&
                 rows[2][ci].textContent === turn) { //세로 확인
 
                 hasWinner = true;
-            }
-            if (rows[0][0].textContent === turn &&
+                return true;
+            } else if (rows[0][0].textContent === turn &&
                 rows[1][1].textContent === turn &&
                 rows[2][2].textContent === turn) {  //대각선 확인
 
                 hasWinner = true;
-            }
-            if (rows[0][2].textContent === turn &&
+                return true;
+            } else if (rows[0][2].textContent === turn &&
                 rows[1][1].textContent === turn &&
                 rows[2][0].textContent === turn) {  //반대 대각선 확인
 
                 hasWinner = true;
+                return hasWinner;
+            } else {
+                return false;
             }
         }
-
-        const checkGame = (target) => {
-            const rowIndex = target.parentNode.rowIndex;    //rowIndex, cellIndex = html지원
-            const cellIndex = target.cellIndex;
-
-            checkWinner(rowIndex, cellIndex);   //승리자 있는지 확인
+        
+        const printResult = () => {
             if (hasWinner) {
                 $result.textContent = `${turn}가 이겼습니다.`;
                 $table.removeEventListener('click', clickEvent);
@@ -77,12 +76,49 @@
                 return;
             }
         }
+
+        const checkGame = (target) => {
+            const rowIndex = target.parentNode.rowIndex;    //rowIndex, cellIndex = html지원
+            const cellIndex = target.cellIndex;
+
+            checkWinner(rowIndex, cellIndex);   //승리자 있는지 확인
+            printResult();  //게임 결과 출력
+        }
+
+        const computerChoice = (choice) => {
+            for (let ri = 0 ; ri < 3 && !hasWinner ; ri++) {
+                for (let ci = 0 ; ci < 3 && !hasWinner ; ci++) {    //배열을 한칸씩 돌면서
+                    if (rows[ri][ci].textContent === '') {  //빈칸이 있으면
+                        rows[ri][ci].textContent = choice; //값를 넣고 시뮬레이션
+                        turn = choice;
+                        if (checkWinner(ri, ci)) {  //값을 하나 넣었을 때 승리하면
+                            hasWinner = false;
+                            const thisCell = rows[ri][ci];
+                            thisCell.textContent = '';  //시뮬레이션 한 값 이전으로 돌리고
+                            turn = 'X';
+                            return thisCell;    //해당 위치 리턴
+                        }
+                        rows[ri][ci].textContent = '';  //시뮬레이션 한 값 이전으로 돌리기
+                        turn = 'X';
+                    }
+                }   // 좀 지저분 해 보이는데 일단 보류..
+            }
+        }
         
         const computerTurn = () => {
-            const emptyCell = rows.flat().filter( cell => !cell.textContent );  //배열 중 내용 없는 칸 선택
-            const randomCell = emptyCell[Math.floor(Math.random() * emptyCell.length)]; //랜덤한 칸 선택
-            randomCell.textContent = turn;
-            checkGame(randomCell);  //선택칸으로 게임 승패 확인
+            let thisCell;
+            const attack = computerChoice('X');   //넣으면 이기는 곳 있는지 시뮬레이션 시켜보기
+            const defence = computerChoice('O');   //막아야 하는 곳 있는지 시뮬레이션 시켜보기
+            if (attack && defence) {    //이기는 곳 막아야 할 곳 둘다 있으면 이기는게 우선
+                thisCell = attack;
+            } else if (defence) {   //막아야할 곳만 있으면 막기
+                thisCell = defence;
+            } else {    //둘다 없으면 임의 선택
+                const emptyCell = rows.flat().filter( cell => !cell.textContent );    //빈칸 찾아서
+                thisCell = emptyCell[Math.floor(Math.random() * emptyCell.length)]; //랜덤 선택
+            }
+            thisCell.textContent = turn;
+            checkGame(thisCell);  //선택칸으로 게임 승패 확인
             turn = turn === 'O' ? 'X' : 'O';    //턴 전환
             cilckable = true;   //사용자 클릭 허용
         }
