@@ -279,6 +279,7 @@
         game = null;
         this.updateHero();
         this.updateMonster();
+        this.showMessage('게임을 종료하였습니다.');
         $gameMenu.removeEventListener('click', this.onGameMenu);
         $battleMenu.removeEventListener('click', this.onBattleMenu);
         this.changeScreen('start');
