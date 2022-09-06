@@ -16,8 +16,10 @@
             height: 100dvh;
             background-color: lightblue;
             display: flex;
+            flex-flow: column nowrap;
             justify-content: center;
             align-items: center;
+            gap: 1rem;
         }
         #wrapper {
             width: 24rem;
@@ -57,14 +59,19 @@
         .card-back {
             transform: rotateY(180deg);
         }
+        #msg {
+            font-size: 2rem;
+        }
     </style>
 </head>
 <body>
     <main>
+        <div id="msg"></div>
         <div id="wrapper"></div>
     </main>
     <script>
         const $wrapper = document.querySelector('#wrapper');
+        const $msg = document.querySelector('#msg');
         const total = 12;
         const colors = [ 'red', 'orange', 'yellow', 'green', 'white', 'pink' ];
         let colorCopy = colors.concat(colors);  //카드 2장씩 필요하므로 배열 전체 복사해서 추가
@@ -108,17 +115,23 @@
             const cardFrontColor = clicked[0].querySelector('.card-back').style.backgroundColor;
             const cardBackColor = clicked[1].querySelector('.card-back').style.backgroundColor;
             if (cardFrontColor === cardBackColor) { //선택한 2개의 카드 뒷면 같을 때
-                completed.concat(clicked);  //완성한 카드로 복사
+                completed = completed.concat(clicked);  //완성한 카드로 복사
                 clicked[0].removeEventListener('click', onClickCard);   //재선택 방지
                 clicked[1].removeEventListener('click', onClickCard);
                 clicked = [];   //선택한 카드 배열 값 삭제
-            } else {    //선택한 2개의 카드 뒷면 다를 때
-                setTimeout(() => {  //뒷면 잠깐 보여주고
-                    clicked[0].classList.remove('flipped'); //앞면으로 되돌리기
-                    clicked[1].classList.remove('flipped');
-                    clicked = [];
-                }, 1000);
+
+                if (completed.length === total) {   //맞춘 카드수가 총 카드수와 같은지 비교
+                    $msg.textContent = '축하합니다!';
+                }
+                return;
             }
+            //선택한 2개의 카드 뒷면 다를 때
+            setTimeout(() => {  //뒷면 잠깐 보여주고
+                clicked[0].classList.remove('flipped'); //앞면으로 되돌리기
+                clicked[1].classList.remove('flipped');
+                clicked = [];
+            }, 1000);
+            
         }
         
         const start = () => {   //게임 시작
