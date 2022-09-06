@@ -214,6 +214,7 @@
           this.updateHero();
           this.showMessage(`체력을 모두 회복했다!`);
         } else if (selected === 'exit') { //'종료' 선택
+          this.showMessage('게임을 종료하였습니다.');
           this.quit();
         }
       }
@@ -279,7 +280,6 @@
         game = null;
         this.updateHero();
         this.updateMonster();
-        this.showMessage('게임을 종료하였습니다.');
         $gameMenu.removeEventListener('click', this.onGameMenu);
         $battleMenu.removeEventListener('click', this.onBattleMenu);
         this.changeScreen('start');
