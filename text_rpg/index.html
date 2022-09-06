@@ -7,52 +7,135 @@
   <title>텍스트 RPG</title>
   <style>
     * {
-      font-size: 1.5rem;
+      margin: 0;
+      padding: 0;
+      font-size: 1.2rem;
+    }
+    main {
+      width: 100%;
+      height: 100vh;
+      background-color: lightblue;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    section{
+      width: 80%;
+      height: auto;
+      background-color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    section div {
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    section>div {
+      width: 30%;
+    }
+    section>div:last-child {
+      width: 100%;
+    }
+    form>div{
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    #start-screen input, #start-screen button {
+      margin: 0;
+    }
+    #hero-name {
+      color: rgb(34, 120, 148);
+      font-weight: bold;
+      line-height: 2rem;
+    }
+    #monster-name {
+      color: red;
+      font-weight: bold;
+      line-height: 2.5rem;
+    }
+    input, button {
+      padding: 0.3rem;
+      margin: 0.5rem;
+      cursor: pointer;
+    }
+    #msg {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    @media all and (max-width: 500px) {
+      section>div {
+        flex-flow: row wrap;
+        width: 100%;
+      }
+      form>div{
+        flex-flow: row wrap;
+      }
     }
   </style>
 </head>
 <body>
   <main>
-    <section>
-      <form id="start-screen">
-        <input id="name-input" type="text" placeholder="이름을 입력 해 주세요.">
+    <section id="start-screen">
+      <form>
+        <input id="name-input" type="text" placeholder="캐릭터 이름" size="10" maxlength="6">
         <button id="start">시작</button>
       </form>
+      <div id="msg-start"></div>
     </section>
-    <div id="screen">
-      <section id="hero-stat">
-        <span id="hero-name"></span>
-        <span id="hero-level"></span>
-        <span id="hero-hp"></span>
-        <span id="hero-xp"></span>
-        <span id="hero-att"></span>
-
+    <section id="game-screen" style="display: none;">
+      <div>
+        <div id="hero-stat">
+          <span id="hero-name"></span>
+          <span id="hero-level"></span>
+          <span id="hero-hp"></span>
+          <span id="hero-xp"></span>
+          <span id="hero-att"></span>
+        </div>
+      </div>
+      <div>
         <form id="game-menu" style="display: none;">
-          <button id="adventure">모험</button>
-          <button id="rest">휴식</button>
-          <button id="exit">종료</button>
+          <div>
+            <button id="adventure">모험</button>
+            <button id="rest">휴식</button>
+            <button id="exit">종료</button>
+          </div>
         </form>
         <form id="battle-menu" style="display: none;">
-          <button id="attack">공격</button>
-          <button id="heal">회복</button>
-          <button id="run">도망</button>
+          <div>
+            <button id="attack">공격</button>
+            <button id="heal">회복</button>
+            <button id="run">도망</button>
+          </div>
         </form>
-      </section>
-      <section>
-        <div id="msg"></div>
-        <div id="monster-stat">
+      </div>
+      <div id="monster-stat">
+        <div>
           <span id="monster-name"></span>
           <span id="monster-hp"></span>
           <span id="monster-att"></span>
         </div>
-      </section>
-    </div>
+      </div>
+      <div id="msg"></div>
+    </section>
   </main>
   <script>
     const $startScreen = document.querySelector('#start-screen');
+    const $gameScreen = document.querySelector('#game-screen');
     const $gameMenu = document.querySelector('#game-menu');
     const $battleMenu = document.querySelector('#battle-menu');
     const $msg = document.querySelector('#msg');
+    const $msgStart = document.querySelector('#msg-start');
 
     const $heroStat = { //주인공 스탯 출력 부분
       name : document.querySelector('#hero-name'),
@@ -73,9 +156,12 @@
         this.hero = null;
         this.monster = null;
         this.monsterList = [
-          { name: '슬라임', hp: 25, att: 10, xp: 10 },
-          { name: '스켈레톤', hp: 50, att: 15, xp: 20 },
-          { name: '마왕', hp: 150, att: 35, xp: 50 },
+          { name: '슬라임', hp: 25, att: 10, xp: 10, level: 1 },
+          { name: '스켈레톤', hp: 50, att: 15, xp: 20, level: 1 },
+          { name: '고블린', hp: 70, att: 20, xp: 30, level:1 },
+          { name: '오우거', hp: 100, att: 30, xp: 40, level:3 },
+          { name: '드래곤', hp: 150, att: 40, xp: 50, level:3 },
+          { name: '마왕', hp: 300, att: 50, xp: 100, level:5 },
         ];
         this.start(name);
       }
@@ -89,15 +175,18 @@
       }
       changeScreen(screen) {  //화면 전환용, function 함수
         if (screen === 'start') {
-          $startScreen.style.display = 'block';
+          $startScreen.style.display = 'flex';
+          $gameScreen.style.display = 'none';
           $gameMenu.style.display = 'none';
           $battleMenu.style.display = 'none';
         } else if (screen === 'game') {
           $startScreen.style.display = 'none';
+          $gameScreen.style.display = 'flex';
           $gameMenu.style.display = 'block';
           $battleMenu.style.display = 'none';
         } else if (screen === 'battle') {
           $startScreen.style.display = 'none';
+          $gameScreen.style.display = 'flex';
           $gameMenu.style.display = 'none';
           $battleMenu.style.display = 'block';
         }
@@ -107,17 +196,19 @@
         const selected = e.target.id; //어떤 버튼 눌렀는지
         if (selected === 'adventure') { //'모험' 선택
           this.changeScreen('battle');
-          const randomIndex = Math.floor(Math.random() * this.monsterList.length);
-          const randomMonster = this.monsterList[randomIndex];  //몬스터 리스트에서 몬스터 뽑아서
+          const myLevelMonster = this.monsterList.filter(list => list.level <= this.hero.level);
+          const randomIndex = Math.floor(Math.random() * myLevelMonster.length);
+          const randomMonster = myLevelMonster[randomIndex];  //몬스터 리스트에서 몬스터 뽑아서
           this.monster = new Monster (  //상대 몬스터 생성
             this,
             randomMonster.name,
             randomMonster.hp, 
             randomMonster.xp, 
-            randomMonster.att 
+            randomMonster.att,
+            randomMonster.level
           );
           this.updateMonster();
-          this.showMessage(`몬스터를 마주쳤다! ${this.monster.name}인 것 같다!`);
+          this.showMessage(`몬스터를 마주쳤다!`);
         } else if (selected === 'rest') { //'휴식' 선택
           this.hero.hp = this.hero.maxHp;
           this.updateHero();
@@ -142,9 +233,11 @@
           this.updateHero();
           this.updateMonster();
         } else if (selected === 'run') {  //'도망' 선택
+          this.hero.xp -= this.hero.xp * 0.1;
           this.monster = null;
+          this.updateHero();
           this.updateMonster();
-          this.showMessage(`도망갔다.`);
+          this.showMessage(`도망갔다. 경험치를 10% 잃었다.`);
           this.changeScreen('game');
         }
       }
@@ -177,6 +270,7 @@
           $monsterStat.att.textContent = `ATT : ${monster.att}`;
       }
       showMessage(text) { //메세지 출력 기능
+        $msgStart.textContent = text;
         $msg.textContent = text;
       }
       quit() {  //게임 종료 (전체 초기화)
@@ -192,12 +286,13 @@
     }
 
     class Unit {  //Hero, Monster Class 공통 부분
-      constructor(game, name, hp, xp, att) {
+      constructor(game, name, hp, xp, att, level) {
         this.game = game;
         this.name = name;
         this.hp = hp;
         this.xp = xp;
         this.att = att;
+        this.level = level;
       }
       attack(target) {
         target.hp -= this.att;
@@ -223,8 +318,7 @@
 
     class Hero extends Unit { //캐릭터 생성
       constructor(game, name) {
-        super(game, name, 100, 0, 10);  //공통부분 이용하고
-        this.level = 1; //공통부분에 없는 부분만 별도 추가
+        super(game, name, 100, 0, 10, 1);  //공통부분 이용하고
         this.maxHp = 100;
       }
       heal(monster) { //20씩 회복하지만 monster에게 받은 수치만큼 다시 맞음
@@ -253,8 +347,8 @@
     }
 
     class Monster extends Unit {  //몬스터 생성
-      constructor(game, name, hp, xp, att) {
-        super(game, name, hp, xp, att);
+      constructor(game, name, hp, xp, att, level) {
+        super(game, name, hp, xp, att, level);
       }
     }
 
@@ -262,7 +356,10 @@
     
     const start = (e) => {
       e.preventDefault();
-      const name = e.target['name-input'].value;  //닉네임 값 받아와서
+      let name = e.target['name-input'].value;  //닉네임 값 받아와서
+      if (name === '') {
+        name = '무명의 모험가';
+      }
       game = new Game(name);  //새로운 게임 생성
     }
 
