@@ -232,11 +232,8 @@
           this.game.showMessage(`더 이상 회복 할 수 없다.`);
           return;
         }
-        this.hp += 20;
-        if (this.hp > this.maxHp) {
-          this.hp = this.maxHp;
-        }
-        this.hp -= monster.att;
+        this.hp = Math.min(this.maxHp, this.hp + 20); //Math.min(a,b) a랑 b중에 작은 값
+        monster.attack(this);
         super.onFight(this, monster, 'heal'); //게임 종료여부 검사
       }
       getXp(monster) {
