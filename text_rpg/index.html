@@ -69,7 +69,7 @@
       margin: 0.5rem;
       cursor: pointer;
     }
-    #msg {
+    #msg, #msg-start {
       margin-top: 1rem;
       font-weight: bold;
     }
@@ -234,12 +234,20 @@
           this.updateHero();
           this.updateMonster();
         } else if (selected === 'run') {  //'도망' 선택
-          this.hero.xp -= this.hero.xp * 0.1;
-          this.monster = null;
-          this.updateHero();
-          this.updateMonster();
-          this.showMessage(`도망갔다. 경험치를 10% 잃었다.`);
-          this.changeScreen('game');
+          const probability = Math.floor(Math.random() * 9);
+          if (probability > 2) {  //70% 확률로 도망 성공
+            this.hero.xp -= this.hero.xp * 0.1;
+            this.monster = null;
+            this.updateHero();
+            this.updateMonster();
+            this.showMessage(`도망갔다. 경험치를 10% 잃었다.`);
+            this.changeScreen('game');
+          } else {  //30% 확률로 도망 실패
+            monster.attack(hero);
+            hero.onFight(hero, monster, 'run');
+            this.updateHero();
+            this.updateMonster();
+          }
         }
       }
       updateHero() { //캐릭터 스탯 화면 출력
@@ -300,7 +308,11 @@
       }
       onFight(hero, monster, parent) {  //게임 종료여부 검사
         if (hero.hp < 1) {
-          this.game.showMessage(`${hero.level}레벨에서 전사했다. 새로운 캐릭터를 생성하세요.`);
+          if (parent === 'run') { //도망 실패 사망 처리
+            this.game.showMessage(`도망에 실패! ${hero.level}레벨에서 전사했다. 새로운 캐릭터를 생성하세요.`);
+          } else {
+            this.game.showMessage(`${hero.level}레벨에서 전사했다. 새로운 캐릭터를 생성하세요.`);
+          }
           this.game.quit();
           return;
         } else if (monster.hp < 1) {
@@ -313,6 +325,8 @@
           this.game.showMessage(`${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다!`);
         } else if (parent === 'heal') { //회복하던 중일때
           this.game.showMessage(`20을 회복하였지만, ${monster.att}의 데미지를 받았다!`);
+        } else if (parent === 'run') {  //도망에 실패했을때
+          this.game.showMessage(`도망에 실패! ${monster.att}의 데미지를 받았다!`);
         }
       }
     }
