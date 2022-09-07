@@ -61,6 +61,12 @@
         }
         #msg {
             font-size: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        #reset {
+            font-size: 1rem;
+            padding: 0.3rem;
         }
     </style>
 </head>
@@ -133,7 +139,9 @@
                 clicked = [];   //선택한 카드 배열 값 삭제
 
                 if (completed.length === total) {   //맞춘 카드수가 총 카드수와 같은지 비교
-                    $msg.textContent = '축하합니다!';
+                    $msg.innerHTML = `<p>축하합니다!</p><button id='reset'>다시시작</botton>`;
+                    const $reset = document.querySelector('#reset');
+                    $reset.addEventListener('click', resetGame);
                 }
                 return;
             }
@@ -172,6 +180,18 @@
             setTimeout(() => {  //카드 애니메이션 종료 후 클릭 이벤트 부여
                 addClickEvent($card);
             }, 5500);
+        }
+
+        const resetGame = () => {
+            const $reset = document.querySelector('#reset');
+            $reset.removeEventListener('click', resetGame);
+            $wrapper.innerHTML = '';
+            $msg.innerHTML = '';
+            colorCopy = colors.concat(colors);  //카드 2장씩 필요하므로 배열 전체 복사해서 추가
+            shuffled = [];
+            clicked = [];
+            completed = [];
+            start();
         }
 
         start();
