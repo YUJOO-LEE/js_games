@@ -62,7 +62,7 @@
             transform: rotateY(180deg);
         }
         #msg {
-            font-size: 2rem;
+            font-size: 1.5rem;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -132,7 +132,7 @@
                 clicked = [];   //선택한 카드 배열 값 삭제
 
                 if (completed.length === total) {   //맞춘 카드수가 총 카드수와 같은지 비교
-                    const endTime = new Date();
+                    const endTime = new Date(); //종료 시간 저장
                     $msg.innerHTML = `<p>${(endTime - startTime) / 1000}초만에 성공했습니다!</p>
                         <button id='reset'>다시시작</botton>`;
                     const $reset = document.querySelector('#reset');
@@ -155,11 +155,11 @@
         const start = () => {   //게임 시작
             shuffle();  //카드 섞기
             for (let i = 0 ; i < total ; i++) {
-                const card = createCrad(i); //카드 12장 뽑아서
+                const card = createCrad(i); //카드 20장 뽑아서
                 $wrapper.append(card);  //#wrapper 하위에 하나씩 출력
             }
 
-            startTime = new Date();
+            startTime = new Date(); //시작시간 저장
             const $card = document.querySelectorAll('.card');
             $card.forEach ((card, index) => {   //카드 하나씩 뒷면 보여주기
                 setTimeout(() => {
