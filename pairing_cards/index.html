@@ -102,6 +102,18 @@
             return card;
         }
 
+        const addClickEvent = (e) => {
+            e.forEach ((card) => {   //전체 클릭 이벤트 부여
+                        card.addEventListener('click', onClickCard);
+                });
+        }
+
+        const removeClickEvent = (e) => {
+            e.forEach ((card) => {   //전체 클릭 이벤트 삭제
+                        card.removeEventListener('click', onClickCard);
+                });
+        }
+
         function onClickCard() {    //카드 클릭 이벤트
             this.classList.toggle('flipped');
             clicked.push(this); //클릭한 카드 저장
@@ -126,10 +138,13 @@
                 return;
             }
             //선택한 2개의 카드 뒷면 다를 때
+            const $card = document.querySelectorAll('.card');
+            removeClickEvent($card);     //카드 이벤트 잠깐 지웠다가
             setTimeout(() => {  //뒷면 잠깐 보여주고
                 clicked[0].classList.remove('flipped'); //앞면으로 되돌리기
                 clicked[1].classList.remove('flipped');
                 clicked = [];
+                addClickEvent($card);     //애니메이션 종료 후 이벤트 다시 부여
             }, 1000);
             
         }
@@ -154,11 +169,9 @@
                 }, 5000);
             });
 
-            $card.forEach ((card) => {   //카드 별 이벤트 부여 (다 돌아가고 난 후)
-                setTimeout(() => {
-                    card.addEventListener('click', onClickCard);
-                }, 5500);
-            });
+            setTimeout(() => {  //카드 애니메이션 종료 후 클릭 이벤트 부여
+                addClickEvent($card);
+            }, 5500);
         }
 
         start();
