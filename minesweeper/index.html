@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지뢰찾기</title>
+  <style>
+    #select-screen {
+      display: block;
+    }
+    #game-screen {
+      display: none;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      border: 1px solid white;
+      text-align: center;
+      line-height: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      background-color: lightgray;
+    }
+    td.opened {
+      background-color: white;
+    }
+    td.flag {
+      background-color: red;
+    }
+    td.question {
+      background-color: orange;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="select-screen">
+      <form id="select-game">
+        <select name="select-box">
+          <option value="9">초급 (9 * 9)</option>
+          <option value="16">중급 (16 * 16)</option>
+          <option value="30">고급 (30 * 30)</option>
+        </select>
+        <button>시작</button>
+      </form>
+    </section>
+    <section id="game-screen">
+      <table id="table">
+        <tbody></tbody>
+      </table>
+      <div id="result"></div>
+    </section>
+  </main>
+  <script>
+    const $selectScreen = document.querySelector('#select-screen');
+    const $selectGame = document.querySelector('#select-game');
+    const $gameScreen = document.querySelector('#game-screen');
+    const $tbody = document.querySelector('#table tbody');
+    const $result = document.querySelector('#result');
+    let box = [];
+    let game = null;
+
+    class Game {
+      constructor(size) { //신규 게임
+        this.size = Number(size) * Number(size);
+        this.lineSize = Number(size);
+        this.mine = Math.round(Number(size) * Number(size) / 5);
+        this.boxList = [];
+        this.start();
+      }
+
+      start() { //게임 시작
+        this.changeScreen('game');
+        this.createBox();
+      }
+
+      onLeftClick(e) {
+        const trId = e.target.parentNode.rowIndex;
+        const tdId = e.target.cellIndex
+        if (game.boxList[trId][tdId] === '*') {
+          e.target.textContent = '*';
+        }
+      }
+
+      onRightClick(e) {
+        const trId = e.target.parentNode.rowIndex;
+        const tdId = e.target.cellIndex;
+        e.target.classList.toggle('flag');
+        if (game.boxList[trId][tdId] === '*') {
+          e.target.textContent = '*';
+        }
+      }
+
+      createBox() { //새 게임 출력
+        const cellList = new Array(this.size).fill(); //시작한 게임 갯수만큼 배열 저장
+        for (let i = 0 ; i < this.mine ; i++) { //지뢰 갯수만큼 랜덤 값 뽑아서 인덱스로 사용
+          const randomIndex = Math.floor(Math.random() * cellList.length);
+          if (cellList[randomIndex] === '*') {  //이미 값 있으면 넘어감
+            i++;
+          } else {  //값 없는 위치에 값 추가
+            cellList[randomIndex] = '*';
+          }
+        }
+        let cellListCopy;//한줄 길이만큼만 잘라서 2차 배열로 보관
+        for (let i = 0 ; i < this.lineSize ; i++) {
+          cellListCopy = cellList.slice(i * this.lineSize, (i + 1) * this.lineSize);
+          this.boxList.push(cellListCopy);
+        }
+
+        /* 테이블 그리기 */
+        for (let i = 0 ; i < this.lineSize ; i++) { //한줄 사이즈만큼 tr만들기
+          const $tr = document.createElement('tr');
+          for (let j = 0 ; j < this.lineSize ; j++) { //한줄 사이즈만큼 td만들기
+            const $td = document.createElement('td');
+            $tr.append($td);
+          }
+          $tbody.append($tr);
+          $tbody.addEventListener('click', this.onLeftClick);
+          $tbody.addEventListener('contextmenu', this.onRightClick);
+        }
+
+      }
+
+      changeScreen(screen) {  //화면 전환
+        if (screen === 'game') {
+          $selectScreen.style.display = 'none';
+          $gameScreen.style.display = 'block';
+        } else if (screen === 'select') {
+          $selectScreen.style.display = 'block';
+          $gameScreen.style.display = 'none';
+        }
+      }
+    }
+
+    const onGame = (e) => { //난이도 선택 후 이벤트
+      e.preventDefault();
+      size = e.target['select-box'].value;
+      game = new Game(size);
+    }
+
+    $selectGame.addEventListener('submit', onGame);
+  </script>
+</body>
+</html>
