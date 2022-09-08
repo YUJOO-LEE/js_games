@@ -239,9 +239,9 @@
           target.className = 'flag';
           target.textContent = '!';
           this.boxList[trId][tdId] = CODE.FLAG;
-          $mine.textContent++;
-        } else if (thisData === CODE.FLAG) { //지뢰없는 깃발칸일때
           $mine.textContent--;
+        } else if (thisData === CODE.FLAG) { //지뢰없는 깃발칸일때
+          $mine.textContent++;
           target.className = 'question';
           target.textContent = '?';
           this.boxList[trId][tdId] = CODE.QUESTION;
@@ -253,9 +253,9 @@
           target.className = 'flag';
           target.textContent = '!';
           this.boxList[trId][tdId] = CODE.FLAG_MINE;
-          $mine.textContent++;
-        } else if (thisData === CODE.FLAG_MINE) { //지뢰있는 깃발칸일때
           $mine.textContent--;
+        } else if (thisData === CODE.FLAG_MINE) { //지뢰있는 깃발칸일때
+          $mine.textContent++;
           target.className = 'question';
           target.textContent = '?';
           this.boxList[trId][tdId] = CODE.QUESTION_MINE;
