@@ -217,9 +217,6 @@
           const $tr = document.createElement('tr');
           for (let j = 0 ; j < this.lineSize ; j++) { //한줄 사이즈만큼 td만들기
             const $td = document.createElement('td');
-            if (this.boxList[i][j] === -6) {  //테스트용
-              $td.textContent = 'X';
-            }
             $tr.append($td);
           }
           $tbody.append($tr);
