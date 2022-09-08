@@ -79,92 +79,139 @@
         this.lineSize = Number(size);
         this.mine = Math.round(Number(size) * Number(size) / 5);
         this.boxList = [];
+        this.openCount = 0;
         this.start();
       }
 
       start() { //게임 시작
         this.changeScreen('game');
-        this.createBox();
+        this.createGame();
+      }
+
+      countMine = (trId, tdId) => { //주변에 지뢰 있는지 체크
+        const mines = [ CODE.MINE, CODE.FLAG_MINE, CODE.QUESTION_MINE ];
+        let i = 0;
+        mines.includes(this.boxList[trId - 1]?.[tdId - 1]) && i++;  //optional chaining을 배웠다
+        mines.includes(this.boxList[trId - 1]?.[tdId]) && i++;
+        mines.includes(this.boxList[trId - 1]?.[tdId + 1]) && i++;
+        mines.includes(this.boxList[trId][tdId - 1]) && i++;
+        mines.includes(this.boxList[trId][tdId + 1]) && i++;
+        mines.includes(this.boxList[trId + 1]?.[tdId - 1]) && i++;
+        mines.includes(this.boxList[trId + 1]?.[tdId]) && i++;
+        mines.includes(this.boxList[trId + 1]?.[tdId + 1]) && i++;
+        return i;
+        /*
+        let count = 0;
+        for (let i = -1 ; i < 2 ; i++) {
+          for (let j = -1 ; j < 2 ; j++) {
+            if (game.boxList[trId + i][tdId + j] <= CODE.QUESTION_MINE) {
+              count++;
+              $tbody.children[trId].childNodes[tdId].textContent = count;
+              $tbody.children[trId].childNodes[tdId].className = 'oppend';
+            }
+          }
+        }*/
+      }
+
+      open = (trId, tdId) => {  //박스 오픈 처리
+        if (this.boxList[trId]?.[tdId] >= CODE.OPENED) {  //재귀 최적화 (열었던 칸 안열리게)
+          return;
+        }
+        const target = $tbody.children[trId]?.children[tdId];
+        if (!target) {
+          return;
+        }
+        const count = this.countMine(trId, tdId); //지뢰 갯수 확인
+        target.textContent = count || ''; //조건이 ||가 아니고 ??이면 Null과 undefind만 false로 인정 nullish coalescing
+        target.className = 'opened';
+        this.boxList[trId][tdId] = count;
+        this.openCount++;
+        if (this.size - this.openCount === this.mine) {
+          $result.textContent = '이겼습니다.';
+          clickable = false;
+          return;
+        }
+        return count;
+      }
+
+      openBox(trId, tdId) { //박스 열어보기
+        const count = this.open(trId, tdId);
+        if (count === 0) {  //내 박스 주변 8칸에 지뢰가 하나도 없으면
+          this.openBox(trId - 1, tdId - 1);
+          this.openBox(trId - 1, tdId);
+          this.openBox(trId - 1, tdId + 1);
+          this.openBox(trId, tdId - 1);
+          this.openBox(trId, tdId + 1);
+          this.openBox(trId + 1, tdId - 1);
+          this.openBox(trId + 1, tdId);
+          this.openBox(trId + 1, tdId + 1);
+        }
       }
 
       onLeftClick(e) {
         const trId = e.target.parentNode.rowIndex;
         const tdId = e.target.cellIndex
-        let thisDate = game.boxList[trId][tdId];  //Data에서 현재값 불러오기
-
-        if (!clickable || (thisDate !== CODE.DEFAULT && thisDate !== CODE.MINE)) {  //일반칸 아니면 좌클릭 방지
-          return;
-        }
-        if (game.boxList[trId][tdId] <= CODE.QUESTION_MINE) {  //지뢰라면
+        let thisData = game.boxList[trId][tdId];  //Data에서 현재값 불러오기
+        if (thisData === CODE.QUESTION_MINE) {  //지뢰라면
           for(let i = 0 ; i < game.boxList.length ; i++){
             for(let j = 0 ; j < game.boxList[i].length ; j++){
               if (game.boxList[i][j] <= CODE.QUESTION_MINE){
-                $tbody.children[i].childNodes[j].textContent = 'O';
+                $tbody.children[i].children[j].textContent = 'O'; //지뢰표시
               }
             }
           }
           $result.textContent = '꽝!';
           clickable = false;
-
+          return;
         }
-        if (game.boxList[trId][tdId] >= CODE.FLAG) {  //지뢰가 아니라면
-          //e.target.textContent = '*';
+        if (thisData === CODE.DEFAULT) {//지뢰가 아니라면
+          game.openBox(trId, tdId);
         }
       }
 
+      changeBox = (e, trId, tdId) => { //체크 조건
+        const target = $tbody.children[trId]?.children[tdId];
+        let thisData = this.boxList[trId][tdId];  //Data에서 현재값 불러오기
+
+        if (thisData === CODE.DEFAULT) {  //지뢰없는 일반칸일때
+          target.className = 'question';
+          target.textContent = '?';
+          this.boxList[trId][tdId] = CODE.QUESTION;
+        } else if (thisData === CODE.QUESTION) { //지뢰없는 물음표칸일때
+          target.className = 'flag';
+          target.textContent = '!';
+          this.boxList[trId][tdId] = CODE.FLAG;
+        } else if (thisData === CODE.FLAG) { //지뢰없는 깃발칸일때
+          target.className = '';
+          target.textContent = '';
+          this.boxList[trId][tdId] = CODE.DEFAULT;
+        } else if (thisData === CODE.MINE) { //지뢰있는 일반칸일때
+          target.className = 'question';
+          target.textContent = '?';
+          this.boxList[trId][tdId] = CODE.QUESTION_MINE;
+        } else if (thisData === CODE.QUESTION_MINE) { //지뢰있는 물음표칸일때
+          target.className = 'flag';
+          target.textContent = '!';
+          this.boxList[trId][tdId] = CODE.FLAG_MINE;
+        } else if (thisData === CODE.FLAG_MINE) { //지뢰있는 깃발칸일때
+          target.className = '';
+          target.textContent = '';
+          this.boxList[trId][tdId] = CODE.MINE;
+        }
+      }
+      
       onRightClick(e) {
         e.preventDefault();
         const trId = e.target.parentNode.rowIndex;  //선택한 줄 위치
         const tdId = e.target.cellIndex;  //선택한 칸 위치
-        let thisDate = game.boxList[trId][tdId];  //Data에서 현재값 불러오기
-        if (!clickable || thisDate > CODE.DEFAULT) {  //오픈된칸 우클릭 방지
+        const thisData = game.boxList[trId][tdId];  //Data에서 현재값 불러오기
+        if (!clickable || thisData > CODE.DEFAULT) {  //오픈된칸 우클릭 방지
           return;
         }
-        
-        if (thisDate === CODE.DEFAULT) {  //지뢰없는 일반칸일때
-          e.target.className = 'question';
-          e.target.textContent = '?';
-          game.boxList[trId][tdId] = CODE.QUESTION;
-        } else if (thisDate === CODE.QUESTION) { //지뢰없는 물음표칸일때
-          e.target.className = 'flag';
-          e.target.textContent = '!';
-          game.boxList[trId][tdId] = CODE.FLAG;
-        } else if (thisDate === CODE.FLAG) { //지뢰없는 깃발칸일때
-          e.target.className = '';
-          e.target.textContent = '';
-          game.boxList[trId][tdId] = CODE.DEFAULT;
-        } else if (thisDate === CODE.MINE) { //지뢰있는 일반칸일때
-          e.target.className = 'question';
-          e.target.textContent = '?';
-          game.boxList[trId][tdId] = CODE.QUESTION_MINE;
-        } else if (thisDate === CODE.QUESTION_MINE) { //지뢰있는 물음표칸일때
-          e.target.className = 'flag';
-          e.target.textContent = '!';
-          game.boxList[trId][tdId] = CODE.FLAG_MINE;
-        } else if (thisDate === CODE.FLAG_MINE) { //지뢰있는 깃발칸일때
-          e.target.className = '';
-          e.target.textContent = '';
-          game.boxList[trId][tdId] = CODE.MINE;
-        }
-        console.log(thisDate, game.boxList);
+        game.changeBox(e, trId, tdId);
       }
 
-      createBox() { //새 게임 출력
-        const cellList = new Array(this.size).fill(-1); //시작한 게임 갯수만큼 배열 저장
-        for (let i = 0 ; i < this.mine ; i++) { //지뢰 갯수만큼 랜덤 값 뽑아서 인덱스로 사용
-          const randomIndex = Math.floor(Math.random() * cellList.length);
-          if (cellList[randomIndex] === -6) {  //이미 값 있으면 넘어감
-            i++;
-          } else {  //값 없는 위치에 값 추가
-            cellList[randomIndex] = -6;
-          }
-        }
-        let cellListCopy;//한줄 길이만큼만 잘라서 2차 배열로 보관
-        for (let i = 0 ; i < this.lineSize ; i++) {
-          cellListCopy = cellList.slice(i * this.lineSize, (i + 1) * this.lineSize);
-          this.boxList.push(cellListCopy);
-        }
-
+      createTable() {
         /* 테이블 그리기 */
         for (let i = 0 ; i < this.lineSize ; i++) { //한줄 사이즈만큼 tr만들기
           const $tr = document.createElement('tr');
@@ -179,7 +226,25 @@
           $tbody.addEventListener('click', this.onLeftClick);
           $tbody.addEventListener('contextmenu', this.onRightClick);
         }
+      }
 
+      createGame() { //새 게임 출력
+        const cellList = new Array(this.size).fill(-1); //시작한 게임 갯수만큼 배열 저장
+        for (let i = 0 ; i < this.mine ; i++) { //지뢰 갯수만큼 랜덤 값 뽑아서 인덱스로 사용
+          const randomIndex = Math.floor(Math.random() * cellList.length);
+          if (cellList[randomIndex] === -6) {  //이미 값 있으면 넘어감
+            i--;
+          } else {  //값 없는 위치에 값 추가
+            cellList[randomIndex] = -6;
+          }
+        }
+        let cellListCopy;//한줄 길이만큼만 잘라서 2차 배열로 보관
+        for (let i = 0 ; i < this.lineSize ; i++) {
+          cellListCopy = cellList.slice(i * this.lineSize, (i + 1) * this.lineSize);
+          this.boxList.push(cellListCopy);
+        }
+        this.createTable(this);
+        console.log(this.boxList);
       }
 
       changeScreen(screen) {  //화면 전환
