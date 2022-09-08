@@ -237,13 +237,13 @@
 
         if (thisData === CODE.DEFAULT) {  //지뢰없는 일반칸일때
           target.className = 'flag';
-          target.textContent = '!';
+          target.textContent = '❕';
           this.boxList[trId][tdId] = CODE.FLAG;
           $mine.textContent--;
         } else if (thisData === CODE.FLAG) { //지뢰없는 깃발칸일때
           $mine.textContent++;
           target.className = 'question';
-          target.textContent = '?';
+          target.textContent = '❔';
           this.boxList[trId][tdId] = CODE.QUESTION;
         } else if (thisData === CODE.QUESTION) { //지뢰없는 물음표칸일때
           target.className = '';
@@ -251,13 +251,13 @@
           this.boxList[trId][tdId] = CODE.DEFAULT;
         } else if (thisData === CODE.MINE) { //지뢰있는 일반칸일때
           target.className = 'flag';
-          target.textContent = '!';
+          target.textContent = '❕';
           this.boxList[trId][tdId] = CODE.FLAG_MINE;
           $mine.textContent--;
         } else if (thisData === CODE.FLAG_MINE) { //지뢰있는 깃발칸일때
           $mine.textContent++;
           target.className = 'question';
-          target.textContent = '?';
+          target.textContent = '❔';
           this.boxList[trId][tdId] = CODE.QUESTION_MINE;
         } else if (thisData === CODE.QUESTION_MINE) { //지뢰있는 물음표칸일때
           target.className = '';
