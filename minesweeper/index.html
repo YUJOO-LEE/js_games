@@ -125,6 +125,8 @@
     let clickable = false;
     let time = 0;
     let timer;
+    let searched = [];
+    let DefaultCellfound = false;
 
     const CODE = {
       OPENED : 0,
@@ -185,8 +187,8 @@
         this.openCount++;
         if (this.size - this.openCount === this.mine) {
           clearInterval(timer);
-          $reset.textContent = '🥳';
           clickable = false;
+          $reset.textContent = '🥳';
           return;
         }
         return count;
@@ -206,6 +208,27 @@
         }
       }
 
+      transferMine(trId, tdId) {
+        if (DefaultCellfound) return; //이미 빈 칸 찾았으면 종료
+        if (trId < 0 || trId >= this.lineSize || tdId < 0 || tdId >= this.lineSize) return;
+        //첫줄, 첫칸, 마지막줄, 마지막칸에서 더이상 검색 방지
+        if (searched[trId][tdId]) return; //이미 확인한 칸 중복 확인 방지
+        if (this.boxList[trId][tdId] === CODE.DEFAULT) {
+          DefaultCellfound = true;
+          this.boxList[trId][tdId] = CODE.MINE;
+        } else {
+          searched[trId][tdId] = true;
+          this.transferMine(trId - 1, tdId - 1);
+          this.transferMine(trId - 1, tdId);
+          this.transferMine(trId - 1, tdId + 1);
+          this.transferMine(trId, tdId - 1);
+          this.transferMine(trId, tdId + 1);
+          this.transferMine(trId + 1, tdId - 1);
+          this.transferMine(trId + 1, tdId);
+          this.transferMine(trId + 1, tdId + 1);
+        }
+      }
+
       onLeftClick(e) {
         if (!clickable) {  //클릭 방지
           return;
@@ -213,6 +236,14 @@
         const trId = e.target.parentNode.rowIndex;
         const tdId = e.target.cellIndex
         let thisData = game.boxList[trId][tdId];  //Data에서 현재값 불러오기
+        if (game.openCount === 0) {  //첫번째 클릭 지뢰 방지
+          searched = Array(game.lineSize).fill().map(() => []); //검색해본 위치 저장을 위한 배열
+          if (thisData === CODE.MINE) {
+            game.transferMine(trId, tdId);
+            game.boxList[trId][tdId] = CODE.DEFAULT;
+            thisData = CODE.DEFAULT;
+          }
+        }
         if (thisData === CODE.MINE) {  //지뢰라면
           for(let i = 0 ; i < game.boxList.length ; i++){
             for(let j = 0 ; j < game.boxList[i].length ; j++){
@@ -307,7 +338,6 @@
           this.boxList.push(cellListCopy);
         }
         this.createTable(this);
-        console.log(this.boxList);
       }
 
       changeScreen(screen) {  //화면 전환
@@ -327,7 +357,8 @@
       size = e.target['select-box'].value;
       game = new Game(size);
     }
-    const quit = () => {
+    const quit = () => {  //게임 초기화
+      clearInterval(timer);
       game.changeScreen('select');
       clickable = false;
       size = null;
@@ -338,6 +369,8 @@
       $reset.textContent = '🥺';
       $time.textContent = 0;
       $mine.textContent = '';
+      searched = [];
+      DefaultCellfound = false;
     }
 
     $selectForm.addEventListener('submit', onGame);
