@@ -68,9 +68,9 @@
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('mousedown', this.mouseDown);
         window.addEventListener('mouseup', this.mouseUp);
-        window.addEventListener('touchstart', this.touchDown, false);
-        window.addEventListener('touchend', this.touchUp, false);
-        window.addEventListener('touchmove', this.touchMove, false);
+        $tbody.addEventListener('touchstart', this.touchDown, false);
+        $tbody.addEventListener('touchend', this.touchUp, false);
+        $tbody.addEventListener('touchmove', this.touchMove, false);
       }
 
       touchDown() {
