@@ -39,10 +39,17 @@
       <tbody>
       </tbody>
     </table>
+    <div>
+      <button id="start">다시하기</button>
+    </div>
   </div></main>
   <script>
     const $tbody = document.querySelector('#game-table tbody');
     const $h1 = document.querySelector('h1');
+    const $start = document.querySelector('#start');
+
+    let clickable = false;
+    let game;
     
     class Game {
       constructor() {
@@ -56,6 +63,7 @@
         this.drawEmptyTable();
         this.randomPut2();  //데이터 조작 부분
         this.drawData();  //데이터를 화면으로 옮기는 부분
+        clickable = true;
         
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('mousedown', this.mouseDown);
@@ -104,6 +112,7 @@
       }
 
       keyUp = (e) => {  //키보드 이벤트 발생
+        if (!clickable) return;
         if (e.key === 'ArrowUp') {
           this.moveCells('up')
         } else if (e.key === 'ArrowDown') {
@@ -116,10 +125,12 @@
       }
 
       mouseDown = (e) => {  //드래그 시작점 저장
+        if (!clickable) return;
         this.mouseStart = [e.clientX , e.clientY];
       }
 
       mouseUp = (e) => {  //드래그 뗄때 이벤트 발생
+        if (!clickable) return;
         const mouseEnd = [e.clientX , e.clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
         const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
@@ -160,6 +171,7 @@
             if (!this.checkMove(prevDataArray)) {
               this.randomPut2();
             }
+            break;
         }
         if (this.data.flat().includes(2048)) {  //승리 조건 만족 시
           this.drawData();
@@ -278,13 +290,18 @@
     }
 
     const quit = (e) => {
-        window.removeEventListener('keyup', game.keyUp);
-        window.removeEventListener('mousedown', game.mouseDown);
-        window.removeEventListener('mouseup', game.mouseUp);
-        game = null;
-      }
+      clickable = false;
+      window.removeEventListener('keyup', game.keyUp);
+      window.removeEventListener('mousedown', game.mouseDown);
+      window.removeEventListener('mouseup', game.mouseUp);
+    }
+    const start = (e) => {
+      $tbody.innerHTML = '';
+      game = new Game();
+    }
 
-    let game = new Game();
+    start();
+    $start.addEventListener('click', start);
   </script>
 </body>
 </html>
