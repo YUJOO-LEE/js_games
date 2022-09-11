@@ -73,17 +73,17 @@
         $tbody.addEventListener('touchmove', this.touchMove, false);
       }
 
-      touchDown() {
+      touchDown(e) {
         e.preventDefault();
         $h1.textContent = '터치 시작';
       }
 
-      touchUp() {
+      touchUp(e) {
         e.preventDefault();
         $h1.textContent = '터치 끝';
       }
 
-      touchMove() {
+      touchMove(e) {
         e.preventDefault();
       }
 
