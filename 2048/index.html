@@ -127,12 +127,13 @@
       }
 
       mouseDown = (e) => {  //드래그 시작점 저장
-        e.preventDefualt();
+        e.preventDefault();
         if (!clickable) return;
         this.mouseStart = [e.clientX , e.clientY];
       }
 
       mouseUp = (e) => {  //드래그 뗄때 이벤트 발생
+        e.preventDefault();
         if (!clickable) return;
         const mouseEnd = [e.clientX , e.clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
