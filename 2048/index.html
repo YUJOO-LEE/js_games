@@ -68,40 +68,14 @@
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('mousedown', this.mouseDown);
         window.addEventListener('mouseup', this.mouseUp);
-        window.addEventListener('touchstart', this.touchDown, false);
-        window.addEventListener('touchend', this.touchUp, false);
-        //window.addEventListener('touchmove', this.touchMove, false);
+        window.addEventListener('touchstart', this.mouseDown, false);
+        window.addEventListener('touchend', this.mouseUp, false);
+        window.addEventListener('touchmove', this.touchMove, false);
       }
 
-      touchDown = (e) => {
-        e.preventDefault();
-        if (!clickable) return;
-        this.mouseStart = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
-        $h1.textContent = `1X좌표 ${e.changedTouches[0].clientX} Y좌표 ${e.changedTouches[0].clientY}`;
-      }
-
-      touchUp = (e) => {
-        e.preventDefault();
-        if (!clickable) return;
-        const mouseEnd = [e.changedTouches[0].clientX , e.changedTouches[0].clientY];
-        const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
-        const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
-        $h1.textContent = `2X좌표 ${e.changedTouches[0].clientX} Y좌표 ${e.changedTouches[0].clientY}`;
-        if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY) ) {
-          this.moveCells('left');
-        } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY) ) {
-          this.moveCells('right');
-        } else if (diffX < 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
-          this.moveCells('up');
-        } else if (diffX > 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
-          this.moveCells('down');
-        }
-      }
-
-      /*
       touchMove(e) {
         e.preventDefault();
-      }*/
+      }
 
       drawEmptyTable() {
         const $fragment = document.createDocumentFragment();  //가상의 메모리 (성능 최적화용)
@@ -160,13 +134,17 @@
       mouseDown = (e) => {  //드래그 시작점 저장
         e.preventDefault();
         if (!clickable) return;
-        this.mouseStart = [e.clientX , e.clientY];
+        const clientX = e.clientX || e.changedTouches[0].clientX;
+        const clientY = e.clientY || e.changedTouches[0].clientY;
+        this.mouseStart = [clientX , clientY];
       }
 
       mouseUp = (e) => {  //드래그 뗄때 이벤트 발생
         e.preventDefault();
         if (!clickable) return;
-        const mouseEnd = [e.clientX , e.clientY];
+        const clientX = e.clientX || e.changedTouches[0].clientX;
+        const clientY = e.clientY || e.changedTouches[0].clientY;
+        const mouseEnd = [clientX , clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
         const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
         if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY) ) {
