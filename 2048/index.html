@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048</title>
+  <style>
+    table {
+      background-color: #bbbbbb;
+    }
+    td {
+      width: 3rem;
+      height: 3rem;
+      line-height: 3rem;
+      text-align: center;
+      background-color: #E6E6E6;
+    }
+  </style>
+</head>
+<body>
+  <main><div>     
+    <table id="game-table">
+      <tbody>
+      </tbody>
+    </table>
+  </div></main>
+  <script>
+    const $tbody = document.querySelector('#game-table tbody');
+    
+    class Game {
+      constructor() {
+        this.data = [];
+        this.color = {
+          0 : '#E6E6E6',
+          2 : '#FBFBEF',
+          4 : '#F7F2E0',
+          8 : '#F3E2A9',
+          16 : '#F5D0A9',
+          32 : '#F7BE81',
+          64 : '#FE9A2E',
+          128 : '#FE642E',
+          256 : '#FF4000',
+          512 : '#DF3A01',
+          1024 : '#B43104',
+          2048 : '#610B0B',
+        }
+        this.start();
+      }
+
+      start() { //게임 시작
+        this.data = Array(4).fill().map(() => Array(4).fill(0));  //데이터 저장용 2차 배열
+        this.getRandomTarget(); //랜덤한 위치에 2입력
+        this.drawTable();
+        console.log(this.data);
+      }
+
+      getRandomTarget() {
+        const randomIndex = Math.floor(Math.random() * 16);
+        const randomRow = Math.floor(randomIndex / 4);
+        const randomCell = randomIndex % 4;
+        this.data[randomRow][randomCell] = 2;
+      }
+
+      drawTable() {
+        this.data.forEach ((e, i) => {  //데이터 줄만큼 tr생성
+          const $tr = document.createElement('tr');
+          this.data[i].forEach ((v, j) => { //데이터 칸만큼 td생성
+            const $td = document.createElement('td');
+            $td.textContent = this.data[i][j];  //각 칸에 데이터 표시
+            $tr.append($td);
+          })
+          $tbody.append($tr);
+        })
+      }
+    }
+
+    new Game();
+  </script>
+</body>
+</html>
