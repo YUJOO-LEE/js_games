@@ -73,20 +73,20 @@
         $tbody.addEventListener('touchmove', this.touchMove, false);
       }
 
-      touchDown(e) {
+      touchDown = (e) => {
         e.preventDefault();
-        $h1.textContent = '마우스 이벤트 복사해왔다';
         if (!clickable) return;
         this.mouseStart = [e.clientX , e.clientY];
+        $h1.textContent = `X좌표 ${e.clientX} Y좌표 ${e.clientY}`;
       }
 
-      touchUp(e) {
+      touchUp = (e) =>{
         e.preventDefault();
-        $h1.textContent = '마우스 이벤트 복사해옴';
         if (!clickable) return;
         const mouseEnd = [e.clientX , e.clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
         const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
+        $h1.textContent = `X좌표 ${e.clientX} Y좌표 ${e.clientY}`;
         if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY) ) {
           this.moveCells('left');
         } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY) ) {
