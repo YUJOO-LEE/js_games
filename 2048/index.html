@@ -68,8 +68,9 @@
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('mousedown', this.mouseDown);
         window.addEventListener('mouseup', this.mouseUp);
-        window.addEventListener('touchstart', this.touchDown);
-        window.addEventListener('touchend', this.touchUp);
+        window.addEventListener('touchstart', this.touchDown, false);
+        window.addEventListener('touchend', this.touchUp, false);
+        window.addEventListener('touchmove', this.touchMove, false);
       }
 
       touchDown() {
@@ -80,6 +81,10 @@
       touchUp() {
         e.preventDefault();
         $h1.textContent = '터치 끝';
+      }
+
+      touchMove() {
+        e.preventDefault();
       }
 
       drawEmptyTable() {
