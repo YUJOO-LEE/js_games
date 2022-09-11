@@ -8,14 +8,28 @@
   <style>
     table {
       background-color: #bbbbbb;
+      user-select: none;
     }
     td {
+      user-select: none;
       width: 3rem;
       height: 3rem;
       line-height: 3rem;
       text-align: center;
       background-color: #E6E6E6;
+      font-size: 2rem;
     }
+    .style-2 { background-color: #FBFBEF; color: black; }
+    .style-4 { background-color: #F7F2E0; color: black; }
+    .style-8 { background-color: #F3E2A9; color: black; }
+    .style-16 { background-color: #F5D0A9; color: black; }
+    .style-32 { background-color: #F7BE81; color: black; }
+    .style-64 { background-color: #FE9A2E; color: black; }
+    .style-128 { background-color: #FE642E; color: black; }
+    .style-256 { background-color: #FF4000; color: white; }
+    .style-512 { background-color: #DF3A01; color: white; }
+    .style-1024 { background-color: #B43104; color: white; }
+    .style-2048 { background-color: #610B0B; color: white; }
   </style>
 </head>
 <body>
@@ -31,47 +45,185 @@
     class Game {
       constructor() {
         this.data = [];
-        this.color = {
-          0 : '#E6E6E6',
-          2 : '#FBFBEF',
-          4 : '#F7F2E0',
-          8 : '#F3E2A9',
-          16 : '#F5D0A9',
-          32 : '#F7BE81',
-          64 : '#FE9A2E',
-          128 : '#FE642E',
-          256 : '#FF4000',
-          512 : '#DF3A01',
-          1024 : '#B43104',
-          2048 : '#610B0B',
-        }
+        this.mouseStart;
         this.start();
       }
 
       start() { //게임 시작
-        this.data = Array(4).fill().map(() => Array(4).fill(0));  //데이터 저장용 2차 배열
-        this.getRandomTarget(); //랜덤한 위치에 2입력
-        this.drawTable();
-        console.log(this.data);
+        this.data = Array(4).fill().map(() => Array(4).fill());  //데이터 저장용 2차 배열
+        this.drawEmptyTable();
+        this.randomPut2();  //데이터 조작 부분
+        this.drawData();  //데이터를 화면으로 옮기는 부분
+        
+        window.addEventListener('keyup', this.keyUp);
+        window.addEventListener('mousedown', this.mouseDown);
+        window.addEventListener('mouseup', this.mouseUp);
       }
 
-      getRandomTarget() {
-        const randomIndex = Math.floor(Math.random() * 16);
-        const randomRow = Math.floor(randomIndex / 4);
-        const randomCell = randomIndex % 4;
-        this.data[randomRow][randomCell] = 2;
-      }
-
-      drawTable() {
-        this.data.forEach ((e, i) => {  //데이터 줄만큼 tr생성
+      drawEmptyTable() {
+        const $fragment = document.createDocumentFragment();  //가상의 메모리 (성능 최적화용)
+        this.data.forEach ((rowData, i) => {  //데이터 줄만큼 tr생성
           const $tr = document.createElement('tr');
-          this.data[i].forEach ((v, j) => { //데이터 칸만큼 td생성
+          this.data[i].forEach ((cellData, j) => { //데이터 칸만큼 td생성
             const $td = document.createElement('td');
-            $td.textContent = this.data[i][j];  //각 칸에 데이터 표시
             $tr.append($td);
           })
-          $tbody.append($tr);
+          $fragment.append($tr);
         })
+        $tbody.append($fragment);
+      }
+
+      randomPut2() {  //비어있는 칸 중에서 랜덤한 위치에 2입력
+        const emptyCells = [];
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            if (!cellData) {
+              emptyCells.push([i, j]);
+            }
+          })
+        })
+        const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        this.data[randomCell[0]][randomCell[1]] = 2;  //emptyCells에서 i, j에 해당했던 부분
+      }
+
+      drawData() {  //데이터 테이블에 뿌려주기
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            const target = $tbody.children[i].children[j];
+            if (cellData > 0) {
+              target.textContent = cellData;
+              target.className = `style-${cellData}`;
+            } else {
+              target.textContent = '';
+              target.className = '';
+            }
+          })
+        })
+      }
+
+      keyUp = (e) => {  //키보드 이벤트 발생
+        if (e.key === 'ArrowUp') {
+          this.moveCells('up')
+        } else if (e.key === 'ArrowDown') {
+          this.moveCells('down')
+        } else if (e.key === 'ArrowLeft') {
+          this.moveCells('left')
+        } else if (e.key === 'ArrowRight') {
+          this.moveCells('right')
+        }
+      }
+
+      mouseDown = (e) => {  //드래그 시작점 저장
+        this.mouseStart = [e.clientX , e.clientY];
+      }
+
+      mouseUp = (e) => {  //드래그 뗄때 이벤트 발생
+        const mouseEnd = [e.clientX , e.clientY];
+        const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
+        const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
+        if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY) ) {
+          this.moveCells('left');
+        } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY) ) {
+          this.moveCells('right');
+        } else if (diffX < 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
+          this.moveCells('up');
+        } else if (diffX > 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
+          this.moveCells('down');
+        }
+      }
+
+      moveCells = (key) => {  //키보드 또는 마우스 조작 시 숫자 이동
+        const newData = [[], [], [], []];
+        switch (key) {
+          case 'left' : {
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {  //4*4 데이터를 모두 돌면서
+                if (cellData) {
+                  const currentRow = newData[i];  //현재값을 저장해두고
+                  const prevData = currentRow[currentRow.length - 1]; //현재값의 앞에있는 값 비교
+                  if (prevData === cellData) {
+                    currentRow[currentRow.length - 1] *= -2;  //음수로 만들어서 모든 값 계산하는 버그 방지
+                  }else {
+                    newData[i].push(cellData);  //임시 데이터 쌓기
+                  }
+                }
+              })
+            })
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                this.data[i][j] = Math.abs(newData[i][j]) || 0; //정식 데이터에 임시 데이터 대입 (없으면 0)
+              })
+            })
+            this.randomPut2();  //랜덤 2 다시 생성하기
+            break;
+          }
+          case 'right' : {
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                if (rowData[3 - j]) { //오른쪽 이동이므로 끝자리 데이터부터 역순 조회
+                  const currentRow = newData[i];
+                  const prevData = currentRow[currentRow.length - 1];
+                  if (prevData === rowData[3 - j]) {
+                    currentRow[currentRow.length - 1] *= -2;
+                  }else {
+                    newData[i].push(rowData[3 - j]);  //역순으로 임시데이터 쌓기
+                  }
+                }
+              })
+            })
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                this.data[i][3 - j] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 역순으로 쌓기
+              })
+            })
+            this.randomPut2();
+            break;
+          }
+          case 'up' : {
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                if (cellData) {
+                  const currentRow = newData[j];  //세로로 이동해야 하므로 가로줄 데이터가 아닌 세로칸 인덱스 사용
+                  const prevData = currentRow[currentRow.length - 1];
+                  if (prevData === cellData) {
+                    currentRow[currentRow.length - 1] *= -2;
+                  }else {
+                    newData[j].push(cellData);  //세로순으로 찾은 값 임시데이터 쌓기
+                  }
+                }
+              })
+            })
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                this.data[j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로순으로 쌓기
+              })
+            })
+            this.randomPut2();
+            break;
+          }
+          case 'down' : {
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                if (this.data[3 - i][j]) {  //세로 데이터의 역순
+                  const currentRow = newData[j];
+                  const prevData = currentRow[currentRow.length - 1];
+                  if (prevData === this.data[3 - i][j]) {
+                    currentRow[currentRow.length - 1] *= -2;
+                  }else {
+                    newData[j].push(this.data[3 - i][j]);
+                  }
+                }
+              })
+            })
+            this.data.forEach((rowData, i) => {
+              rowData.forEach((cellData, j) => {
+                this.data[3 - j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로 역순으로 쌓기
+              })
+            })
+            this.randomPut2();
+          }
+        }
+        this.drawData();  //입력된 데이터 테이블에 뿌려주기
       }
     }
 
