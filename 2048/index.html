@@ -33,7 +33,8 @@
   </style>
 </head>
 <body>
-  <main><div>     
+  <main><div>
+    <h1></h1>
     <table id="game-table">
       <tbody>
       </tbody>
@@ -41,6 +42,7 @@
   </div></main>
   <script>
     const $tbody = document.querySelector('#game-table tbody');
+    const $h1 = document.querySelector('h1');
     
     class Game {
       constructor() {
@@ -50,7 +52,7 @@
       }
 
       start() { //게임 시작
-        this.data = Array(4).fill().map(() => Array(4).fill());  //데이터 저장용 2차 배열
+        this.data = Array(4).fill().map(() => Array(4).fill(0));  //데이터 저장용 2차 배열
         this.drawEmptyTable();
         this.randomPut2();  //데이터 조작 부분
         this.drawData();  //데이터를 화면으로 옮기는 부분
@@ -133,101 +135,156 @@
       }
 
       moveCells = (key) => {  //키보드 또는 마우스 조작 시 숫자 이동
-        const newData = [[], [], [], []];
+        const prevDataArray = JSON.parse(JSON.stringify(this.data));
         switch (key) {
-          case 'left' : {
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {  //4*4 데이터를 모두 돌면서
-                if (cellData) {
-                  const currentRow = newData[i];  //현재값을 저장해두고
-                  const prevData = currentRow[currentRow.length - 1]; //현재값의 앞에있는 값 비교
-                  if (prevData === cellData) {
-                    currentRow[currentRow.length - 1] *= -2;  //음수로 만들어서 모든 값 계산하는 버그 방지
-                  }else {
-                    newData[i].push(cellData);  //임시 데이터 쌓기
-                  }
-                }
-              })
-            })
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                this.data[i][j] = Math.abs(newData[i][j]) || 0; //정식 데이터에 임시 데이터 대입 (없으면 0)
-              })
-            })
-            this.randomPut2();  //랜덤 2 다시 생성하기
+          case 'left' :
+            this.moveLeft();
+            if (!this.checkMove(prevDataArray)) {
+              this.randomPut2();
+            }
             break;
-          }
-          case 'right' : {
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                if (rowData[3 - j]) { //오른쪽 이동이므로 끝자리 데이터부터 역순 조회
-                  const currentRow = newData[i];
-                  const prevData = currentRow[currentRow.length - 1];
-                  if (prevData === rowData[3 - j]) {
-                    currentRow[currentRow.length - 1] *= -2;
-                  }else {
-                    newData[i].push(rowData[3 - j]);  //역순으로 임시데이터 쌓기
-                  }
-                }
-              })
-            })
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                this.data[i][3 - j] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 역순으로 쌓기
-              })
-            })
-            this.randomPut2();
+          case 'right' :
+            this.moveRight();
+            if (!this.checkMove(prevDataArray)) {
+              this.randomPut2();
+            }
             break;
-          }
-          case 'up' : {
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                if (cellData) {
-                  const currentRow = newData[j];  //세로로 이동해야 하므로 가로줄 데이터가 아닌 세로칸 인덱스 사용
-                  const prevData = currentRow[currentRow.length - 1];
-                  if (prevData === cellData) {
-                    currentRow[currentRow.length - 1] *= -2;
-                  }else {
-                    newData[j].push(cellData);  //세로순으로 찾은 값 임시데이터 쌓기
-                  }
-                }
-              })
-            })
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                this.data[j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로순으로 쌓기
-              })
-            })
-            this.randomPut2();
+          case 'up' :
+            this.moveUp();
+            if (!this.checkMove(prevDataArray)) {
+              this.randomPut2();
+            }
             break;
-          }
-          case 'down' : {
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                if (this.data[3 - i][j]) {  //세로 데이터의 역순
-                  const currentRow = newData[j];
-                  const prevData = currentRow[currentRow.length - 1];
-                  if (prevData === this.data[3 - i][j]) {
-                    currentRow[currentRow.length - 1] *= -2;
-                  }else {
-                    newData[j].push(this.data[3 - i][j]);
-                  }
-                }
-              })
-            })
-            this.data.forEach((rowData, i) => {
-              rowData.forEach((cellData, j) => {
-                this.data[3 - j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로 역순으로 쌓기
-              })
-            })
-            this.randomPut2();
-          }
+          case 'down' :
+            this.moveDown();
+            if (!this.checkMove(prevDataArray)) {
+              this.randomPut2();
+            }
         }
-        this.drawData();  //입력된 데이터 테이블에 뿌려주기
+        if (this.data.flat().includes(2048)) {  //승리 조건 만족 시
+          this.drawData();
+          $h1.textContent = '승리했습니다!';
+          quit();
+          return;
+        } else if (!this.data.flat().includes(0)) { //패배 조건 (빈칸 없을 시)
+          this.drawData();  //입력된 데이터 테이블에 뿌려주기
+          $h1.textContent = '패배했습니다..';
+          quit();
+          return;
+        } else {
+          this.drawData();  //입력된 데이터 테이블에 뿌려주기
+        }
+      }
+
+      moveLeft() {
+        const newData = [[], [], [], []];
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {  //4*4 데이터를 모두 돌면서
+            if (cellData) {
+              const currentRow = newData[i];  //현재값을 저장해두고
+              const prevData = currentRow[currentRow.length - 1]; //현재값의 앞에있는 값 비교
+              if (prevData === cellData) {
+                currentRow[currentRow.length - 1] *= -2;  //음수로 만들어서 모든 값 계산하는 버그 방지
+              }else {
+                newData[i].push(cellData);  //임시 데이터 쌓기
+              }
+            }
+          })
+        })
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            this.data[i][j] = Math.abs(newData[i][j]) || 0; //정식 데이터에 임시 데이터 대입 (없으면 0)
+          })
+        })
+      }
+
+      moveRight() {
+        const newData = [[], [], [], []];
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            if (rowData[3 - j]) { //오른쪽 이동이므로 끝자리 데이터부터 역순 조회
+              const currentRow = newData[i];
+              const prevData = currentRow[currentRow.length - 1];
+              if (prevData === rowData[3 - j]) {
+                currentRow[currentRow.length - 1] *= -2;
+              }else {
+                newData[i].push(rowData[3 - j]);  //역순으로 임시데이터 쌓기
+              }
+            }
+          })
+        })
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            this.data[i][3 - j] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 역순으로 쌓기
+          })
+        })
+      }
+
+      moveUp() {
+        const newData = [[], [], [], []];
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            if (cellData) {
+              const currentRow = newData[j];  //세로로 이동해야 하므로 가로줄 데이터가 아닌 세로칸 인덱스 사용
+              const prevData = currentRow[currentRow.length - 1];
+              if (prevData === cellData) {
+                currentRow[currentRow.length - 1] *= -2;
+              }else {
+                newData[j].push(cellData);  //세로순으로 찾은 값 임시데이터 쌓기
+              }
+            }
+          })
+        })
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            this.data[j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로순으로 쌓기
+          })
+        })
+      }
+      
+      moveDown() {
+        const newData = [[], [], [], []];
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            if (this.data[3 - i][j]) {  //세로 데이터의 역순
+              const currentRow = newData[j];
+              const prevData = currentRow[currentRow.length - 1];
+              if (prevData === this.data[3 - i][j]) {
+                currentRow[currentRow.length - 1] *= -2;
+              }else {
+                newData[j].push(this.data[3 - i][j]);
+              }
+            }
+          })
+        })
+        this.data.forEach((rowData, i) => {
+          rowData.forEach((cellData, j) => {
+            this.data[3 - j][i] = Math.abs(newData[i][j]) || 0; //정식데이터 또한 세로 역순으로 쌓기
+          })
+        })
+      }
+
+      checkMove(prevDataArray) {
+        let count = 0;
+        prevDataArray = prevDataArray.flat();
+        const currentDataArray = this.data.flat();
+        prevDataArray.forEach((v, i) => {
+          if (v === currentDataArray[i]) {
+            count++;
+          }
+        })
+        if (count === currentDataArray.length) return true;
       }
     }
 
-    new Game();
+    const quit = (e) => {
+        window.removeEventListener('keyup', game.keyUp);
+        window.removeEventListener('mousedown', game.mouseDown);
+        window.removeEventListener('mouseup', game.mouseUp);
+        game = null;
+      }
+
+    let game = new Game();
   </script>
 </body>
 </html>
