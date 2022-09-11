@@ -73,14 +73,14 @@
         $tbody.addEventListener('touchmove', this.touchMove, false);
       }
 
-      touchDown = (e) => {
+      touchDown(e) {
         e.preventDefault();
         if (!clickable) return;
         this.mouseStart = [e.clientX , e.clientY];
         $h1.textContent = `X좌표 ${e.clientX} Y좌표 ${e.clientY}`;
       }
 
-      touchUp = (e) =>{
+      touchDown(e) {
         e.preventDefault();
         if (!clickable) return;
         const mouseEnd = [e.clientX , e.clientY];
