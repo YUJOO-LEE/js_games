@@ -11,56 +11,57 @@
       /**/
     }
     #game {
+      width: 18rem;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
     }
     .cell {
       position: relative;
-      width: 12rem;
-      height: 12rem;
+      width: 6rem;
+      height: 6rem;
       overflow: hidden;
     }
     .gopher, .bomb {
-      width: 12rem;
-      height: 12rem;
+      width: 6rem;
+      height: 6rem;
       bottom: 0;
       position: absolute;
       transition: bottom 1s;
     }
     .gopher {
       background: url(./gopher.png) center center no-repeat;
-      background-size: 12rem 12rem;
+      background-size: 6rem 6rem;
     }
     .dead {
       background: url(./dead_gopher.png) center center no-repeat;
-      background-size: 12rem 12rem;
+      background-size: 6rem 6rem;
     }
     .bomb {
       background: url(./bomb.png) center center no-repeat;
-      background-size: 12rem 12rem;
+      background-size: 6rem 6rem;
     }
     .boom {
       background: url(./explode.png) center center no-repeat;
-      background-size: 12rem 12rem;
+      background-size: 6rem 6rem;
     }
     .hidden {
-      bottom: -12rem;
+      bottom: -6rem;
     }
     .hole {
-      width: 12rem;
-      height: 9rem;
+      width: 6rem;
+      height: 3rem;
       position: absolute;
       bottom: 0;
       background: url(./mole-hole.png) center center no-repeat;
-      background-size: 12rem 9rem;
+      background-size: 6rem 3rem;
     }
     .hole-front {
-      width: 12rem;
-      height: 2rem;
+      width: 6rem;
+      height: 0.5rem;
       position: absolute;
       bottom: 0;
       background: url(./mole-hole-front.png) center center no-repeat;
-      background-size: 12rem 2rem;
+      background-size: 6rem 0.5rem;
     }
   </style>
 </head>
@@ -69,6 +70,7 @@
     <div id="result">
       <span id="timer"></span>
       <span id="score"></span>
+      <span id="heart"></span>
       <button id="start">시작</button>
     </div>
     <div id="game">
@@ -132,6 +134,7 @@
     const $score = document.querySelector('#score');
     const $timer = document.querySelector('#timer');
     const $start = document.querySelector('#start');
+    const $heart = document.querySelector('#heart');
     const $game = document.querySelector('#game');
     const $$cells = document.querySelectorAll('.cell');
 
@@ -140,19 +143,22 @@
 
     class Game {
       constructor() {
-        this.holes = [];
+        this.holes = [];  //두더지 나오는 구멍
         this.score = 0;
-        this.gopherPercent = 0.1; //100중 0~30 내 나올 확률 30%
-        this.bombPercent = 0.13; //100중 30~50 내 나올 확률 20%
-        this.playTimer = false;
+        this.heart = 3; //목숨 설정
         this.setPlayTime = 60;
-        this.tickId = 0;
+        this.playTimer = false; //플레이타임 카운트하는 타이머
+        this.tickId = 0;  //튀어나오는 반복 이벤트 
+        this.gopherPercent = 0.1; //100중 0~10 내 나올 확률 10%
+        this.bombPercent = 0.12; //100중 10~12 내 나올 확률 2%
         this.start();
       }
 
       start() {
         this.holes = Array(9).fill(0);
-        this.tickId = setInterval(() => { this.tick(); }, 1000); //1초에 한번씩 튀어나오는 이벤트
+        this.tickId = setInterval(() => {
+          if (this.tick()) { this.tick(); }
+        }, 1000); //1초에 한번씩 튀어나오는 이벤트
         $timer.textContent = `${this.setPlayTime}초`;
         $score.textContent = `${this.score}점`;
         this.tick();  //최초 한번 실행용
@@ -194,10 +200,7 @@
       }
 
       onClick = (e, i, value) => {
-        if (value === 'dead' && !e.target.classList.contains('dead')) { //점수 출력
-          this.score++;
-          $score.textContent = `${this.score}점`;
-        }
+        this.checkScore(e, value); //점수증가 or 목숨감소
         e.target.classList.add(value);
         e.target.classList.add('hidden');
         clearTimeout(this.holes[i]);  //실행중이던 모션 종료
@@ -205,6 +208,19 @@
           e.target.classList.remove(value);
           this.holes[i] = 0;
         }, 1000);
+      }
+
+      checkScore = (e, value) => {
+        if (value === 'dead' && !e.target.classList.contains('dead')) { //점수 출력
+          this.score++;
+          $score.textContent = `${this.score}점`;
+        } else if (value === 'boom' && !e.target.classList.contains('boom')) { //점수 출력
+          this.heart--;
+          $heart.textContent = `남은 목숨 : ${this.heart}`;
+        }
+        if (this.heart < 1) { //남은 목숨 없으면 게임 오버
+          quit();
+        }
       }
       
       timer() {
@@ -219,14 +235,15 @@
       }
     }
 
-    const quit = () => {
+    const quit = (e) => {
       clearInterval(game.tickId);
       clearInterval(game.playTimer);
+      /* 클릭 이벤트 초기화 시켜야함 */
       started = false;
       game = null;
     }
 
-    const startGame = () => {
+    const startGame = (e) => {
       if (started) return;
       started = true;
       game = new Game();
