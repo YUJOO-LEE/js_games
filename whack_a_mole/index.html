@@ -153,6 +153,8 @@
       start() {
         this.holes = Array(9).fill(0);
         this.tickId = setInterval(() => { this.tick(); }, 1000); //1초에 한번씩 튀어나오는 이벤트
+        $timer.textContent = `${this.setPlayTime}초`;
+        $score.textContent = `${this.score}점`;
         this.tick();  //최초 한번 실행용
         this.setClick();  //클릭 이벤트 지정
         this.timer(); //타이머 실행
@@ -192,7 +194,7 @@
       }
 
       onClick = (e, i, value) => {
-        if (value === 'dead') { //점수 출력
+        if (value === 'dead' && !e.target.classList.contains('dead')) { //점수 출력
           this.score++;
           $score.textContent = `${this.score}점`;
         }
@@ -211,7 +213,7 @@
             quit();
           } else {
             this.setPlayTime--;
-            $timer.textContent = `${this.setPlayTime} 초`;
+            $timer.textContent = `${this.setPlayTime}초`;
           }
         }, 1000);
       }
