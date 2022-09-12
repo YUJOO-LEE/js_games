@@ -6,9 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=0">
   <title>2048</title>
   <style>
+    * { margin: 0; padding: 0;}
     html, body {
       overscroll-behavior : none;  /* 모바일 당겨서 새로고침 방지*/
       overflow:hidden;
+    }
+    main {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background-color: lightblue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    main>div {
+      background-color: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
     }
     table {
       background-color: #bbbbbb;
@@ -23,6 +44,7 @@
       background-color: #E6E6E6;
       font-size: 2rem;
     }
+    button {padding: 0.5rem;}
     .style-2 { background-color: #FBFBEF; color: black; }
     .style-4 { background-color: #F7F2E0; color: black; }
     .style-8 { background-color: #F3E2A9; color: black; }
