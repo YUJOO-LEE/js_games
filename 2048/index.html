@@ -151,13 +151,14 @@
         const mouseEnd = [clientX , clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
         const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
+        console.log(diffX, diffY);
         if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY) ) {
           this.moveCells('left');
         } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY) ) {
           this.moveCells('right');
-        } else if (diffX < 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
+        } else if (diffY < 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
           this.moveCells('up');
-        } else if (diffX > 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
+        } else if (diffY > 0 && Math.abs(diffX) <= Math.abs(diffY) ) {
           this.moveCells('down');
         }
       }
