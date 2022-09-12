@@ -138,21 +138,16 @@
       mouseDown = (e) => {  //드래그 시작점 저장
         e.preventDefault();
         if (!clickable) return;
-        const clientX = e.clientX || 0; //마우스가 아니면 (터치라면 0)
-        const clientY = e.clientY || 0;
+        const clientX = e.clientX || e.changedTouches[0].clientX;
+        const clientY = e.clientY || e.changedTouches[0].clientY;
         this.mouseStart = [clientX , clientY];
       }
 
       mouseUp = (e) => {  //드래그 뗄때 이벤트 발생
         e.preventDefault();
         if (!clickable) return;
-        if (this.mouseStart[0]) { //마우스일때
-          const clientX = e.clientX;
-          const clientY = e.clientY;
-        } else {  //터치일때
-          const clientX = e.changedTouches[0].clientX;
-          const clientY = e.changedTouches[0].clientY;
-        }
+        const clientX = e.clientX || e.changedTouches[0].clientX;
+        const clientY = e.clientY || e.changedTouches[0].clientY;
         const mouseEnd = [clientX , clientY];
         const diffX = mouseEnd[0] - this.mouseStart[0]; //가로 이동 값
         const diffY = mouseEnd[1] - this.mouseStart[1]; //세로 이동 값
