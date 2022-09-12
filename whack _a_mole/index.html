@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>두더지 잡기</title>
+  <style>
+    * { margin: 0; padding: 0; }
+    main>div {
+      /**/
+    }
+    #game {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .cell {
+      position: relative;
+      width: 12rem;
+      height: 12rem;
+      overflow: hidden;
+    }
+    .gopher, .bomb {
+      width: 12rem;
+      height: 12rem;
+      bottom: 0;
+      position: absolute;
+      transition: bottom 1s;
+    }
+    .gopher {
+      background: url(./gopher.png) center center no-repeat;
+      background-size: 12rem 12rem;
+    }
+    .dead {
+      background: url(./dead_gopher.png) center center no-repeat;
+      background-size: 12rem 12rem;
+    }
+    .bomb {
+      background: url(./bomb.png) center center no-repeat;
+      background-size: 12rem 12rem;
+    }
+    .boom {
+      background: url(./explode.png) center center no-repeat;
+      background-size: 12rem 12rem;
+    }
+    .hidden {
+      bottom: -12rem;
+    }
+    .hole {
+      width: 12rem;
+      height: 9rem;
+      position: absolute;
+      bottom: 0;
+      background: url(./mole-hole.png) center center no-repeat;
+      background-size: 12rem 9rem;
+    }
+    .hole-front {
+      width: 12rem;
+      height: 2rem;
+      position: absolute;
+      bottom: 0;
+      background: url(./mole-hole-front.png) center center no-repeat;
+      background-size: 12rem 2rem;
+    }
+  </style>
+</head>
+<body>
+  <main><div>
+    <div id="result">
+      <span id="timer"></span>
+      <span id="score"></span>
+      <button id="start">시작</button>
+    </div>
+    <div id="game">
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+      <div class="cell">
+        <div class="hole"></div>
+        <div class="gopher hidden"></div>
+        <div class="bomb hidden"></div>
+        <div class="hole-front"></div>
+      </div>
+    </div>
+  </div></main>
+  <script>
+    const $score = document.querySelector('#score');
+    const $timer = document.querySelector('#timer');
+    const $start = document.querySelector('#start');
+    const $game = document.querySelector('#game');
+    const $$cells = document.querySelectorAll('.cell');
+
+    let started = false;
+    let game;
+
+    class Game {
+      constructor() {
+        this.holes = [];
+        this.score = 0;
+        this.start();
+        this.gopherPercent = 0.1; //100중 0~30 내 나올 확률 30%
+        this.bombPercent = 0.13; //100중 30~50 내 나올 확률 20%
+      }
+
+      start() {
+        this.holes = Array(9).fill(0);
+        const tickId = setInterval(() => { this.tick(); }, 1000); //1초에 한번씩 튀어나오는 이벤트
+        this.tick();  //최초 한번 실행용
+        this.setClick();  //클릭 이벤트 지정
+      }
+
+      tick() {  //튀어나오는 이벤트 실행
+        this.holes.forEach((hole, i) => {
+          if (hole) return; //이미 이벤트 발생중인 상황에서 중복발생 방지
+          const randomNumber = Math.random();
+          if (randomNumber < this.gopherPercent) {
+            const $gopher = $$cells[i].querySelector('.gopher');
+            this.onTick(i, $gopher);
+          } else if (randomNumber < this.bombPercent) {
+            const $bomb = $$cells[i].querySelector('.bomb');
+            this.onTick(i, $bomb);
+          }
+        })
+      }
+
+      onTick = (i, value) => {
+        this.holes[i] = setTimeout(() => {
+          value.classList.add('hidden');
+          this.holes[i] = 0;  //setTimeout 아이디값으로 저장된거 타임이벤트 종료 후 비워주기
+        }, 1000);
+        value.classList.remove('hidden');
+      }
+
+      setClick() {  //두더지, 폭탄 클릭 이벤트 지정
+        $$cells.forEach(($cell, i) => {
+          $cell.querySelector('.gopher').addEventListener('click', (e) => {
+            this.onClick(e, i, 'dead');
+          })
+          $cell.querySelector('.bomb').addEventListener('click', (e) => {
+            this.onClick(e, i, 'boom');
+          })
+        })
+      }
+
+      onClick = (e, i, value) => {
+        if (value === 'dead') { //점수 출력
+          this.score++;
+          $score.textContent = `${this.score}점`;
+        }
+        e.target.classList.add(value);
+        e.target.classList.add('hidden');
+        clearTimeout(this.holes[i]);  //실행중이던 모션 종료
+        setTimeout(() => {  //죽거나 터진거 내려가면 이전 이미지로 초기화
+          e.target.classList.remove(value);
+          this.holes[i] = 0;
+        }, 1000);
+      }
+    }
+
+    const startGame = (e) => {
+      if (started) return;
+      started = true;
+      game = new Game();
+    }
+
+    $start.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
