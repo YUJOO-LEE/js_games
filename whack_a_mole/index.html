@@ -142,16 +142,20 @@
       constructor() {
         this.holes = [];
         this.score = 0;
-        this.start();
         this.gopherPercent = 0.1; //100중 0~30 내 나올 확률 30%
         this.bombPercent = 0.13; //100중 30~50 내 나올 확률 20%
+        this.playTimer = false;
+        this.setPlayTime = 60;
+        this.tickId = 0;
+        this.start();
       }
 
       start() {
         this.holes = Array(9).fill(0);
-        const tickId = setInterval(() => { this.tick(); }, 1000); //1초에 한번씩 튀어나오는 이벤트
+        this.tickId = setInterval(() => { this.tick(); }, 1000); //1초에 한번씩 튀어나오는 이벤트
         this.tick();  //최초 한번 실행용
         this.setClick();  //클릭 이벤트 지정
+        this.timer(); //타이머 실행
       }
 
       tick() {  //튀어나오는 이벤트 실행
@@ -200,9 +204,27 @@
           this.holes[i] = 0;
         }, 1000);
       }
+      
+      timer() {
+        this.playTimer = setInterval(() => {
+          if (this.setPlayTime < 1) {
+            quit();
+          } else {
+            this.setPlayTime--;
+            $timer.textContent = `${this.setPlayTime} 초`;
+          }
+        }, 1000);
+      }
     }
 
-    const startGame = (e) => {
+    const quit = () => {
+      clearInterval(game.tickId);
+      clearInterval(game.playTimer);
+      started = false;
+      game = null;
+    }
+
+    const startGame = () => {
       if (started) return;
       started = true;
       game = new Game();
