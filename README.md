@@ -1,3 +1,5 @@
-# study
+# 자바스크립트 게임만들기
 
-으음?# YUJOO-LEE.github.io
+2022.08.29 부터 2022.09.12 까지 자바스크립트를 배우며 만든 미니게임 모음.
+
+https://leeyujoo.com/games.html
